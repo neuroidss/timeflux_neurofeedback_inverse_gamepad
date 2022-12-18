@@ -1,0 +1,22 @@
+graphs:
+  - nodes:
+      - id: sine
+        module: timeflux_example.nodes.signal
+        class: Sine
+        params:
+          frequency: 120
+          amplitude: 1
+          resolution: 44100
+      - id: ui
+        module: timeflux_ui.nodes.ui
+        class: UI
+        params:
+          settings:
+            monitor:
+              millisPerPixel: 0.25
+              lineWidth: 1
+              interpolation: linear
+    edges:
+      - source: sine
+        target: ui:sine
+    rate: 10
