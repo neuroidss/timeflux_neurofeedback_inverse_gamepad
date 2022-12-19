@@ -42,21 +42,28 @@ graphs:
         #serial_port: /dev/cu.usbmodem3067384E33301 # USB
 #        serial_port: /dev/cu.SLAB_USBtoUART # Optical
 #        serial_port: /dev/ttyACM0
-    - id: acquire
-      module: timeflux_brainflow.nodes.driver
-      class: BrainFlow
-      params:
-        board: freeeeg32
-        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+
+#    - id: acquire
+#      module: timeflux_brainflow.nodes.driver
+#      class: BrainFlow
+#      params:
+#        board: freeeeg32
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
         #serial_port: /dev/cu.usbmodem3067384E33301 # USB
 #        serial_port: /dev/cu.SLAB_USBtoUART # Optical
-        serial_port: /dev/ttyACM0
+#        serial_port: /dev/ttyACM0
 #        debug: true
+
     # Receive EEG signal from the network
+    - id: acquire
 #    - id: LSL
-#      module: timeflux.nodes.lsl
-#      class: Receive
-#      params:
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: EEG
+        unit: us
+        sync: null
 #        prop: name
 #        value: EEG
 #        prop: type
@@ -351,6 +358,33 @@ graphs:
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
 #      class: VJoy
       class: UInput
+
+    - id: CoherenceWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+        length: 1.0
+        step: 0.1
+    - id: Coherence
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
+#      class: VJoy
+      class: SpectralConnectivityEpochs
+      params:
+        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+        epochs_con: 1
+        method: coh
+        fmin: 8
+        fmax: 12
+        n_jobs: 1
+        duration: 1
+        overlap: 0.1
+        sfreq: 512
+    - id: PublisherCoherence
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: coherence
+      
     # Connect nodes
     edges:
 #      - source: acquire
@@ -365,6 +399,13 @@ graphs:
 #      - source: Bands
 #      - source: IIRFilter
 #        target: PublisherIIRFilter
+
+#      - source: acquire
+#        target: CoherenceWindow
+#      - source: CoherenceWindow
+#        target: Coherence
+#      - source: Coherence
+#        target: PublisherCoherence
 
       - source: acquire
         target: IIRFilter_a
@@ -493,6 +534,7 @@ graphs:
         - bands
         - iirfilter
         - gamepad
+        - coherence
     # Record to file
 #    - id: Recorder
 #      module: timeflux.nodes.hdf5
@@ -532,6 +574,8 @@ graphs:
 #        target: GamepadWindow:eeg_gamepad_windowed
 #      - source: GamepadWindow:eeg_gamepad_windowed
 #        target: Gamepad:eeg_gamepad_windowed_to_play
+      - source: Subscriber:coherence
+        target: monitor:eeg_coherence
       - source: Subscriber:gamepad
         target: monitor:eeg_gamepad
       - source: Subscriber:bdf
