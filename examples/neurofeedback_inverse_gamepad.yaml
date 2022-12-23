@@ -671,6 +671,13 @@ graphs:
       class: Pub
       params:
         topic: coherence
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
     # Connect nodes
     edges:
 #      - source: Subscriber:raw
@@ -729,19 +736,23 @@ graphs:
 #      - source: IIRFilter_highpass1hz
 #        target: PublisherIIRFilter_highpass1hz
       - source: Subscriber:raw
+        target: dejitter
+      - source: dejitter
+#      - source: Subscriber:raw
 #      - source: acquire
         target: IIRFilter_alpha
       - source: IIRFilter_alpha
-        target: PublisherIIRFilter_alpha
-      - source: Subscriber:alpha
+#        target: PublisherIIRFilter_alpha
+#      - source: Subscriber:alpha
 #      - source: IIRFilter_alpha
         target: IIRFilter_alpha_AddSuffix
-      - source: Subscriber:raw
+      - source: dejitter
+#      - source: Subscriber:raw
 #      - source: acquire
         target: IIRFilter_beta
       - source: IIRFilter_beta
-        target: PublisherIIRFilter_beta
-      - source: Subscriber:beta
+#        target: PublisherIIRFilter_beta
+#      - source: Subscriber:beta
 #      - source: IIRFilter_beta
         target: IIRFilter_beta_AddSuffix
       - source: IIRFilter_alpha_AddSuffix
@@ -767,8 +778,8 @@ graphs:
 #      - source: GamepadEpochSamples
         target: GamepadExpressionMean
       - source: GamepadExpressionMean
-        target: PublisherIIRFilter_alpha_beta_abs_avg
-      - source: Subscriber:alpha_beta_abs_avg
+#        target: PublisherIIRFilter_alpha_beta_abs_avg
+#      - source: Subscriber:alpha_beta_abs_avg
 #      - source: GamepadExpressionMean
         target: GamepadExpressionXR
       - source: GamepadExpressionXR
