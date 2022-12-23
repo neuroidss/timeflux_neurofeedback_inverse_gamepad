@@ -7,6 +7,7 @@ graphs:
     - id: Broker
       module: timeflux.nodes.zmq
       class: Broker
+#      class: BrokerLVC
 
   # The main processing graph
   - id: Processing
@@ -51,19 +52,38 @@ graphs:
 #        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
         #serial_port: /dev/cu.usbmodem3067384E33301 # USB
 #        serial_port: /dev/cu.SLAB_USBtoUART # Optical
+#        serial_port: /dev/ttyS20
 #        serial_port: /dev/ttyACM0
 #        debug: true
+        
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
+    - id: LocQuery
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+#        key: [ Oz ]
+#        key: [ C3, Cz, C4, O1, Oz, O2 ]
+        key: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#        key: [ AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+        axis: 1
+        
 
     # Receive EEG signal from the network
-    - id: acquire
-#    - id: LSL
+#    - id: acquire
+    - id: LSL
       module: timeflux.nodes.lsl
       class: Receive
       params:
         prop: name
-        value: EEG
-        unit: us
-        sync: null
+        value: openvibeSignal
+        unit: s
+        sync: network
 #        prop: name
 #        value: EEG
 #        prop: type
@@ -72,45 +92,212 @@ graphs:
 #        sync: None
 #        name: EEG
 #        name: signal
-    # Continuously buffer the signal
-    - id: Rolling
-      module: timeflux.nodes.window
-      class: Window
+        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+    - id: RenameColumns
+      module: timeflux.nodes.axis
+      class: RenameColumns
       params:
-        length: 1.5
-        step: 0.5
-    # Compute the power spectral density
-    - id: Welch
-      module: timeflux_dsp.nodes.spectral
-      class: Welch
-    # Average the power over band frequencies
-    - id: Bands
-      module: timeflux_dsp.nodes.spectral
-      class: Bands
-    # Send to an external application
-    - id: OSC
-      module: timeflux.nodes.osc
-      class: Client
-      params:
-        address: /alpha
+        names: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
     # Publish the raw EEG signal
     - id: PublisherRaw
       module: timeflux.nodes.zmq
       class: Pub
       params:
         topic: raw
+      
+    # Connect nodes
+    edges:
+#      - source: random
+#      - source: acquire
+      - source: LSL
+#        target: RenameColumns
+#      - source: RenameColumns
+#        target: LocQuery
+#      - source: LocQuery
+#        target: dejitter
+#      - source: dejitter
+#      - source: replay:eeg
+#      - source: LSL
+        target: PublisherRaw
+    # Run this graph 25 times per second
+#    rate: 3
+    rate: 10
+#    rate: 512
+#    rate: 64
+#    rate: 25
+
+  # The recorder graph
+  - id: SaveToFile
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+#        - bdf
+        - raw
+        - highpass1hz
+        - alpha
+        - beta
+        - alpha_beta_abs_avg
+#        - bands
+#        - iirfilter
+        - gamepad
+#        - coherence
+    # Record to file
+#    - id: Recorder
+#      module: timeflux.nodes.hdf5
+#      class: Save
+#    - id: Recorder
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+#      class: Save
+#      params:
+#        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#        sample_rate: 512
+#    - id: GamepadWindow
+#      module: timeflux.nodes.window
+#      class: Window
+#      params:
+#        length: 120
+#        step: 0.1
+    - id: Gamepad
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: VJoy
+      class: UInput
+    - id: monitor
+      module: timeflux_ui.nodes.ui
+      class: UI
+    # Connect nodes
+    edges:
+#      - source: Subscriber:raw
+#        target: Recorder:eeg_raw
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+#      - source: Subscriber:bdf
+#        target: WriteBDFWindow:eeg_bdf
+#      - source: WriteBDFWindow:eeg_bdf_windowed
+#        target: Recorder:eeg_bdf_windowed_to_save
+#      - source: Subscriber:gamepad
+#        target: GamepadWindow:eeg_gamepad_windowed
+#      - source: GamepadWindow:eeg_gamepad_windowed
+#        target: Gamepad:eeg_gamepad_windowed_to_play
+#      - source: Subscriber:coherence
+#        target: monitor:eeg_coherence
+      - source: Subscriber:gamepad
+        target: monitor:eeg_gamepad
+      - source: Subscriber:gamepad
+        target: Gamepad
+#      - source: Subscriber:bdf
+#        target: monitor:eeg_bdf
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+      - source: Subscriber:raw
+        target: monitor:eeg_raw
+      - source: Subscriber:highpass1hz
+        target: monitor:eeg_highpass1hz
+      - source: Subscriber:alpha
+        target: monitor:eeg_alpha
+      - source: Subscriber:beta
+        target: monitor:eeg_beta
+      - source: Subscriber:alpha_beta_abs_avg
+        target: monitor:eeg_alpha_beta_abs_avg
+#      - source: Subscriber:bands
+#        target: monitor:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: monitor:eeg_iirfilter
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 10
+
+  # The recorder graph
+  - id: ProcessToGamepad
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+#        - bdf
+        - raw
+        - alpha
+        - beta
+#        - bands
+#        - iirfilter
+#        - gamepad
+#        - coherence
+    # Record to file
+#    - id: Recorder
+#      module: timeflux.nodes.hdf5
+#      class: Save
+#    - id: Recorder
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+#      class: Save
+#      params:
+#        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#        sample_rate: 512
+    # Continuously buffer the signal
+#    - id: Rolling
+#      module: timeflux.nodes.window
+#      class: Window
+#      params:
+#        length: 1.5
+#        step: 0.5
+    # Compute the power spectral density
+#    - id: Welch
+#      module: timeflux_dsp.nodes.spectral
+#      class: Welch
+    # Average the power over band frequencies
+#    - id: Bands
+#      module: timeflux_dsp.nodes.spectral
+#      class: Bands
+    # Send to an external application
+    - id: OSC
+      module: timeflux.nodes.osc
+      class: Client
+      params:
+        address: /alpha
+#    - id: GamepadWindow
+#      module: timeflux.nodes.window
+#      class: Window
+#      params:
+#        length: 120
+#        step: 0.1
+#    - id: Gamepad
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: VJoy
+#      class: UInput
+#    - id: monitor
+#      module: timeflux_ui.nodes.ui
+#      class: UI
+    # Publish the raw EEG signal
+#    - id: PublisherRaw
+#      module: timeflux.nodes.zmq
+#      class: Pub
+#      params:
+#        topic: raw
     # Publish the frequency bands
-    - id: PublisherBands
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: bands
+#    - id: PublisherBands
+#      module: timeflux.nodes.zmq
+#      class: Pub
+#      params:
+#        topic: bands
     # Publish the frequency iirfilter
-    - id: PublisherIIRFilter
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: iirfilter
+#    - id: PublisherIIRFilter
+#      module: timeflux.nodes.zmq
+#      class: Pub
+#      params:
+#        topic: iirfilter
 #    - id: PublisherWriteBDF
 #      module: timeflux.nodes.zmq
 #      class: Pub
@@ -121,52 +308,127 @@ graphs:
 #      module: timeflux_dsp.nodes.filters
 #      class: IIRLineFilter
     # Apply IIR filter to signal
-    - id: IIRFilter_a
+    - id: IIRFilter_highpass1hz
+      module: timeflux_dsp.nodes.filters
+      class: IIRFilter
+      params:
+        order: 4
+        frequencies: [1.]
+        filter_type: highpass
+    - id: PublisherIIRFilter_highpass1hz
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: highpass1hz
+    - id: IIRFilter_alpha
       module: timeflux_dsp.nodes.filters
       class: IIRFilter
       params:
         order: 4
         frequencies: [8., 12.]
         filter_type: bandpass
-    - id: IIRFilter_a_AddSuffix
+    - id: PublisherIIRFilter_alpha
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: alpha
+    - id: IIRFilter_alpha_AddSuffix
       module: timeflux.nodes.axis
       class: AddSuffix
       params:
         suffix: _a
-    - id: IIRFilter_b
+    - id: IIRFilter_beta
       module: timeflux_dsp.nodes.filters
       class: IIRFilter
       params:
         order: 4
         frequencies: [13., 28.]
         filter_type: bandpass
-    - id: IIRFilter_b_AddSuffix
+    - id: PublisherIIRFilter_beta
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: beta
+    - id: IIRFilter_beta_AddSuffix
       module: timeflux.nodes.axis
       class: AddSuffix
       params:
         suffix: _b
-    - id: IIRFilter_a_b_Concat
+    - id: IIRFilter_alpha_beta_Concat
       module: timeflux_dsp.nodes.helpers
       class: Concat
       params:
         axis: 1
-    - id: GamepadExpressionSquare
+    - id: GamepadExpressionAbs
       module: timeflux.nodes.apply
       class: ApplyMethod
       params:
-        method: numpy.square
+#        method: numpy.square
+        method: numpy.absolute
         apply_mode: universal
-    - id: GamepadExpressionSquareAddSuffix
+    - id: GamepadExpressionAbsAddSuffix
       module: timeflux.nodes.axis
       class: AddSuffix
       params:
         suffix: _2
+    - id: PublisherIIRFilter_alpha_beta_abs_avg
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: alpha_beta_abs_avg
     - id: GamepadDropRows
       module: timeflux_dsp.nodes.filters
       class: DropRows
       params:
-        factor: 64
+#        factor: 16
+        factor: 32
+#        factor: 128
+#        factor: 64
         method: 'mean'
+    - id: clock100ms
+      module: timeflux.nodes.events
+      class: Periodic
+      params:
+        label: gamepad-alpha_beta_abs_avg
+        interval:
+          milliseconds: 100
+#        phase:
+#          seconds: 5
+    - id: GamepadEpochSamples
+      module: timeflux.nodes.epoch
+      class: Samples
+      params:
+        trigger: gamepad-alpha_beta_abs_avg
+        length: 0.0625
+#        length: 0.03125
+#        length: 0.125
+        rate: 512
+#        rate: None
+#        buffer: 5
+    - id: GamepadMeanWindow
+      module: timeflux.nodes.window
+      class: Window
+#      class: Slide
+      params:
+#        length: 2
+#        length: 0.03125
+#        length: 0.0625
+        length: 0.125
+#        step: 0.002
+        step: 0.1
+#        rate: 512
+#        rate: 64
+#        index: time
+#        epochs: true
+#        epochs: false
+    - id: GamepadExpressionMean
+      module: timeflux.nodes.apply
+      class: ApplyMethod
+      params:
+        method: numpy.average
+        apply_mode: reduce
+        axis: 0
+        closed: right
     - id: GamepadExpressionXR
       module: timeflux.nodes.expression
       class: Expression
@@ -177,7 +439,7 @@ graphs:
       module: timeflux.nodes.expression
       class: Expression
       params:
-        expr: B1 = Cz_a_2
+        expr: B1 = -Cz_a_2
         eval_on: columns
     - id: GamepadExpressionX
       module: timeflux.nodes.expression
@@ -189,25 +451,25 @@ graphs:
       module: timeflux.nodes.expression
       class: Expression
       params:
-        expr: Y = Pz_a_2
+        expr: Y = -Pz_a_2
         eval_on: columns
     - id: GamepadExpressionB2
       module: timeflux.nodes.expression
       class: Expression
       params:
-        expr: B2 = Fz_a_2
+        expr: B2 = -Fz_a_2
         eval_on: columns
     - id: GamepadExpressionB3
       module: timeflux.nodes.expression
       class: Expression
       params:
-        expr: B3 = T7_a_2 - T8_a_2
+        expr: B3 = -(T7_a_2 - T8_a_2)
         eval_on: columns
     - id: GamepadExpressionB4
       module: timeflux.nodes.expression
       class: Expression
       params:
-        expr: B4 = P7_a_2 - P8_a_2
+        expr: B4 = -(P7_a_2 - P8_a_2)
         eval_on: columns
     - id: GamepadExpressionZR
       module: timeflux.nodes.expression
@@ -241,12 +503,25 @@ graphs:
         expr: Arousal = (AF4_b_2+AF3_b_2+F4_b_2+F3_b_2)/(AF4_a_2+AF3_a_2+F4_a_2+F3_a_2)
         eval_on: columns
 
-    - id: GamepadWindow
+    - id: GamepadBaselineWindow
       module: timeflux.nodes.window
       class: Window
+#      class: Slide
       params:
+#        length: 0.1
         length: 1
+#        length: 10
+#        length: 60
+#        step: 0.002
+#        rate: 2
+#        rate: 64
+#        rate: 512
+#        step: 0.002
         step: 0.1
+#        step: 1
+#        index: time
+#        index: sample
+#        epochs: true
     - id: GamepadBaseline
       module: timeflux_neurofeedback_inverse_gamepad.nodes.baseline
       class: Baseline
@@ -337,11 +612,26 @@ graphs:
         expr: B8 = (1-Valence)*(Valence>=0.5) + (1-Arousal)*(Arousal>=0.5)
         eval_on: columns
         
+    - id: GamepadLocQuery
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+#        key: [ B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, B17, XR, YR, ZR, X, Y, Z ]
+        key: [ XR, YR, ZR, X, Y, Z, B1, B2, B3, B4, B5, B6, B7, B8 ]
+#        key: [ C3, Cz, C4, O1, Oz, O2 ]
+#        key: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+        axis: 1
     - id: PublisherGamepadExpression
       module: timeflux.nodes.zmq
       class: Pub
       params:
         topic: gamepad
+      
+    - id: Gamepad
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: VJoy
+      class: UInput
+
     - id: WriteBDFWindow
       module: timeflux.nodes.window
       class: Window
@@ -354,17 +644,14 @@ graphs:
       params:
         eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
         sample_rate: 512
-    - id: Gamepad
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-#      class: VJoy
-      class: UInput
 
     - id: CoherenceWindow
       module: timeflux.nodes.window
       class: Window
       params:
         length: 1.0
-        step: 0.1
+#        step: 0.1
+        step: 0.002
     - id: Coherence
       module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
 #      class: VJoy
@@ -384,9 +671,38 @@ graphs:
       class: Pub
       params:
         topic: coherence
-      
     # Connect nodes
     edges:
+#      - source: Subscriber:raw
+#        target: Recorder:eeg_raw
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+#      - source: Subscriber:bdf
+#        target: WriteBDFWindow:eeg_bdf
+#      - source: WriteBDFWindow:eeg_bdf_windowed
+#        target: Recorder:eeg_bdf_windowed_to_save
+#      - source: Subscriber:gamepad
+#        target: GamepadWindow:eeg_gamepad_windowed
+#      - source: GamepadWindow:eeg_gamepad_windowed
+#        target: Gamepad:eeg_gamepad_windowed_to_play
+#      - source: Subscriber:coherence
+#        target: monitor:eeg_coherence
+#      - source: Subscriber:gamepad
+#        target: monitor:eeg_gamepad
+#      - source: Subscriber:bdf
+#        target: monitor:eeg_bdf
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+#      - source: Subscriber:raw
+#        target: monitor:eeg_raw
+#      - source: Subscriber:bands
+#        target: monitor:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: monitor:eeg_iirfilter
 #      - source: acquire
 #      - source: replay:eeg
 #      - source: LSL
@@ -407,29 +723,53 @@ graphs:
 #      - source: Coherence
 #        target: PublisherCoherence
 
-      - source: acquire
-        target: IIRFilter_a
-      - source: IIRFilter_a
-        target: IIRFilter_a_AddSuffix
-      - source: acquire
-        target: IIRFilter_b
-      - source: IIRFilter_b
-        target: IIRFilter_b_AddSuffix
-      - source: IIRFilter_a_AddSuffix
-        target: IIRFilter_a_b_Concat:a
-      - source: IIRFilter_b_AddSuffix
-        target: IIRFilter_a_b_Concat:b
-      - source: IIRFilter_a_b_Concat
-        target: GamepadExpressionSquare
-      - source: GamepadExpressionSquare
-        target: GamepadExpressionSquareAddSuffix
-      - source: GamepadExpressionSquareAddSuffix
+      - source: Subscriber:raw
+#      - source: acquire
+        target: IIRFilter_highpass1hz
+      - source: IIRFilter_highpass1hz
+        target: PublisherIIRFilter_highpass1hz
+      - source: Subscriber:raw
+#      - source: acquire
+        target: IIRFilter_alpha
+      - source: IIRFilter_alpha
+        target: PublisherIIRFilter_alpha
+      - source: Subscriber:alpha
+#      - source: IIRFilter_alpha
+        target: IIRFilter_alpha_AddSuffix
+      - source: Subscriber:raw
+#      - source: acquire
+        target: IIRFilter_beta
+      - source: IIRFilter_beta
+        target: PublisherIIRFilter_beta
+      - source: Subscriber:beta
+#      - source: IIRFilter_beta
+        target: IIRFilter_beta_AddSuffix
+      - source: IIRFilter_alpha_AddSuffix
+        target: IIRFilter_alpha_beta_Concat:alpha
+      - source: IIRFilter_beta_AddSuffix
+        target: IIRFilter_alpha_beta_Concat:beta
+      - source: IIRFilter_alpha_beta_Concat
+        target: GamepadExpressionAbs
+      - source: GamepadExpressionAbs
+        target: GamepadExpressionAbsAddSuffix
+      - source: GamepadExpressionAbsAddSuffix
 #        target: GamepadExpressionSquareC3
 #      - source: GamepadExpressionSquareC3
 #        target: GamepadExpressionSquareC4
 #      - source: GamepadExpressionSquareC4
-        target: GamepadDropRows
-      - source: GamepadDropRows
+#        target: GamepadDropRows
+#      - source: GamepadDropRows
+        target: GamepadMeanWindow
+      - source: GamepadMeanWindow
+#        target: GamepadEpochSamples
+#      - source: clock100ms
+#        target: GamepadEpochSamples:events
+#      - source: GamepadEpochSamples
+        target: GamepadExpressionMean
+      - source: GamepadExpressionMean
+        target: PublisherIIRFilter_alpha_beta_abs_avg
+      - source: Subscriber:alpha_beta_abs_avg
+#      - source: GamepadExpressionMean
         target: GamepadExpressionXR
       - source: GamepadExpressionXR
         target: GamepadExpressionB1
@@ -454,8 +794,8 @@ graphs:
       - source: GamepadExpressionValence
         target: GamepadExpressionArousal
       - source: GamepadExpressionArousal
-        target: GamepadWindow
-      - source: GamepadWindow
+        target: GamepadBaselineWindow
+      - source: GamepadBaselineWindow
         target: GamepadBaseline
       - source: GamepadBaseline
 #        target: GamepadWindowBaseline
@@ -484,111 +824,37 @@ graphs:
       - source: GamepadExpressionB7
         target: GamepadExpressionB8
       - source: GamepadExpressionB8
-        target: Gamepad
+#        target: Gamepad
 #      - source: Gamepad
-      - source: GamepadExpressionB8
+#      - source: GamepadExpressionB8
+        target: GamepadLocQuery
+      - source: GamepadLocQuery
         target: PublisherGamepadExpression
 
-      - source: acquire
+#      - source: acquire
 #        target: WriteBDFWindow
 #      - source: WriteBDFWindow
 #        target: PublisherWriteBDF
-        target: WriteBDFWindow
-      - source: WriteBDFWindow
-        target: Recorder
+#        target: WriteBDFWindow
+#      - source: WriteBDFWindow
+#        target: Recorder
 
 #      - source: random
-      - source: acquire
+#      - source: acquire
 #      - source: replay:eeg
 #      - source: acquire0:eeg_raw
 #      - source: LSL
-        target: Rolling
-      - source: Rolling
-        target: Welch
-      - source: Welch
-        target: Bands
+#        target: Rolling
+#      - source: Rolling
+#        target: Welch
+#      - source: Welch
+#        target: Bands
 #      - source: Bands
-      - source: Bands:alpha
-        target: PublisherBands
-
-#      - source: random
-      - source: acquire
-#      - source: replay:eeg
-#      - source: LSL
-        target: PublisherRaw
-    # Run this graph 25 times per second
-    rate: 25
-
-  # The recorder graph
-  - id: SaveToFile
-    nodes:
-    # Receive data streams from the broker
-    - id: Subscriber
-      module: timeflux.nodes.zmq
-      class: Sub
-      params:
-        topics:
-#        topics: [ raw, bands ]
-#        - bdf
-        - raw
-        - bands
-        - iirfilter
-        - gamepad
-        - coherence
-    # Record to file
-#    - id: Recorder
-#      module: timeflux.nodes.hdf5
-#      class: Save
-#    - id: Recorder
-#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-#      class: Save
-#      params:
-#        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-#        sample_rate: 512
-#    - id: GamepadWindow
-#      module: timeflux.nodes.window
-#      class: Window
-#      params:
-#        length: 120
-#        step: 0.1
-#    - id: Gamepad
-#      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-#      class: VJoy
-#      class: UInput
-    - id: monitor
-      module: timeflux_ui.nodes.ui
-      class: UI
-    # Connect nodes
-    edges:
-#      - source: Subscriber:raw
-#        target: Recorder:eeg_raw
-#      - source: Subscriber:bands
-#        target: Recorder:eeg_bands
-#      - source: Subscriber:iirfilter
-#        target: Recorder:eeg_iirfilter
-#      - source: Subscriber:bdf
-#        target: WriteBDFWindow:eeg_bdf
-#      - source: WriteBDFWindow:eeg_bdf_windowed
-#        target: Recorder:eeg_bdf_windowed_to_save
-#      - source: Subscriber:gamepad
-#        target: GamepadWindow:eeg_gamepad_windowed
-#      - source: GamepadWindow:eeg_gamepad_windowed
-#        target: Gamepad:eeg_gamepad_windowed_to_play
-      - source: Subscriber:coherence
-        target: monitor:eeg_coherence
-      - source: Subscriber:gamepad
-        target: monitor:eeg_gamepad
-      - source: Subscriber:bdf
-        target: monitor:eeg_bdf
-#      - source: Subscriber:bands
-#        target: Recorder:eeg_bands
-#      - source: Subscriber:iirfilter
-#        target: Recorder:eeg_iirfilter
-      - source: Subscriber:raw
-        target: monitor:eeg_raw
-      - source: Subscriber:bands
-        target: monitor:eeg_bands
-      - source: Subscriber:iirfilter
-        target: monitor:eeg_iirfilter
+#      - source: Bands:alpha
+#        target: PublisherBands
     # Update file every second
 #    rate: 1
+#    rate: 3
+    rate: 10
+#    rate: 512
+
