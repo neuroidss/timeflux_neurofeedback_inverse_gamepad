@@ -166,6 +166,23 @@ graphs:
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
 #      class: VJoy
       class: UInput
+    - id: WriteBDFWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+#        length: 1.0
+        length: 512
+#        step: 1.0
+        step: 1
+#        index: time
+        index: sample
+#        epochs: true
+    - id: Recorder
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Save
+      params:
+        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+        sample_rate: 512
     - id: monitor
       module: timeflux_ui.nodes.ui
       class: UI
@@ -177,10 +194,10 @@ graphs:
 #        target: Recorder:eeg_bands
 #      - source: Subscriber:iirfilter
 #        target: Recorder:eeg_iirfilter
-#      - source: Subscriber:bdf
-#        target: WriteBDFWindow:eeg_bdf
-#      - source: WriteBDFWindow:eeg_bdf_windowed
-#        target: Recorder:eeg_bdf_windowed_to_save
+      - source: Subscriber:raw
+        target: WriteBDFWindow
+      - source: WriteBDFWindow
+        target: Recorder
 #      - source: Subscriber:gamepad
 #        target: GamepadWindow:eeg_gamepad_windowed
 #      - source: GamepadWindow:eeg_gamepad_windowed
@@ -627,23 +644,6 @@ graphs:
       params:
         topic: gamepad
       
-    - id: Gamepad
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-#      class: VJoy
-      class: UInput
-
-    - id: WriteBDFWindow
-      module: timeflux.nodes.window
-      class: Window
-      params:
-        length: 1.0
-        step: 1.0
-    - id: Recorder
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-      class: Save
-      params:
-        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-        sample_rate: 512
 
     - id: CoherenceWindow
       module: timeflux.nodes.window
@@ -723,11 +723,11 @@ graphs:
 #      - source: Coherence
 #        target: PublisherCoherence
 
-      - source: Subscriber:raw
+#      - source: Subscriber:raw
 #      - source: acquire
-        target: IIRFilter_highpass1hz
-      - source: IIRFilter_highpass1hz
-        target: PublisherIIRFilter_highpass1hz
+#        target: IIRFilter_highpass1hz
+#      - source: IIRFilter_highpass1hz
+#        target: PublisherIIRFilter_highpass1hz
       - source: Subscriber:raw
 #      - source: acquire
         target: IIRFilter_alpha
