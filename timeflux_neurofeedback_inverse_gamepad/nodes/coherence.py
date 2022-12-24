@@ -115,10 +115,12 @@ class SpectralConnectivityEpochs(Node):
         con_tril=conmat[(self._cohs_tril_indices[0],self._cohs_tril_indices[1])].flatten('F')
 
 #        print('con_tril:',con_tril)
-        data = pd.DataFrame(con_tril, index = self._con_tril_names)
+#        data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[0]])
+        data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[self.i.data.index.size-1]])
 #        data = pd.DataFrame(con_tril, index = self._con_tril_names_2)
 #        data.index = pd.MultiIndex.from_tuples(data.index, names=['0-1','1-0'])
         data = data.T
+#        data.index[0] = self.i.data.index[0]
         
 #        data.columns = self._con_tril_names
 #        data.columns = self._con_tril_names_2
