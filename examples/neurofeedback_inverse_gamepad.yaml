@@ -126,8 +126,7 @@ graphs:
 #    rate: 64
 #    rate: 25
 
-  # The recorder graph
-  - id: SaveToFile
+  - id: StreamToBrowser
     nodes:
     # Receive data streams from the broker
     - id: Subscriber
@@ -146,72 +145,14 @@ graphs:
 #        - iirfilter
         - gamepad
         - coherence
-    # Record to file
-#    - id: Recorder
-#      module: timeflux.nodes.hdf5
-#      class: Save
-#    - id: Recorder
-#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-#      class: Save
-#      params:
-#        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-#        sample_rate: 512
-#    - id: GamepadWindow
-#      module: timeflux.nodes.window
-#      class: Window
-#      params:
-#        length: 120
-#        step: 0.1
-    - id: Gamepad
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-#      class: VJoy
-      class: UInput
-    - id: WriteBDFWindow
-      module: timeflux.nodes.window
-      class: Window
-      params:
-#        length: 1.0
-        length: 512
-#        step: 1.0
-        step: 1
-#        index: time
-        index: sample
-#        epochs: true
-    - id: Recorder
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-      class: Save
-      params:
-        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-        sample_rate: 512
     - id: monitor
       module: timeflux_ui.nodes.ui
       class: UI
-    - id: gephistreamer
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gephistreamer
-      class: GephiStreamer
     edges:
-#      - source: Subscriber:raw
-#        target: Recorder:eeg_raw
-#      - source: Subscriber:bands
-#        target: Recorder:eeg_bands
-#      - source: Subscriber:iirfilter
-#        target: Recorder:eeg_iirfilter
-      - source: Subscriber:raw
-        target: WriteBDFWindow
-      - source: WriteBDFWindow
-        target: Recorder
-#      - source: Subscriber:gamepad
-#        target: GamepadWindow:eeg_gamepad_windowed
-#      - source: GamepadWindow:eeg_gamepad_windowed
-#        target: Gamepad:eeg_gamepad_windowed_to_play
       - source: Subscriber:coherence
         target: monitor:eeg_coherence
-      - source: Subscriber:coherence
-        target: gephistreamer
       - source: Subscriber:gamepad
         target: monitor:eeg_gamepad
-      - source: Subscriber:gamepad
-        target: Gamepad
 #      - source: Subscriber:bdf
 #        target: monitor:eeg_bdf
 #      - source: Subscriber:bands
@@ -232,6 +173,91 @@ graphs:
 #        target: monitor:eeg_bands
 #      - source: Subscriber:iirfilter
 #        target: monitor:eeg_iirfilter
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 10
+
+  - id: StreamToGamepad
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - gamepad
+    - id: Gamepad
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: VJoy
+      class: UInput
+    edges:
+      - source: Subscriber:gamepad
+        target: Gamepad
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 10
+
+  - id: StreamToGephi
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - coherence
+    - id: gephistreamer
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gephistreamer
+      class: GephiStreamer
+    edges:
+      - source: Subscriber:coherence
+        target: gephistreamer
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 10
+
+  # The recorder graph
+  - id: StreamToBDF
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - raw
+    - id: WriteBDFWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+#        length: 1.0
+        length: 512
+#        step: 1.0
+        step: 1
+#        index: time
+        index: sample
+#        epochs: true
+    # Record to file
+    - id: Recorder
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Save
+      params:
+        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+        sample_rate: 512
+    edges:
+      - source: Subscriber:raw
+        target: WriteBDFWindow
+      - source: WriteBDFWindow
+        target: Recorder
     # Update file every second
 #    rate: 1
 #    rate: 64
