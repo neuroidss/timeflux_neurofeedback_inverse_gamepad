@@ -145,7 +145,7 @@ graphs:
 #        - bands
 #        - iirfilter
         - gamepad
-#        - coherence
+        - coherence
     # Record to file
 #    - id: Recorder
 #      module: timeflux.nodes.hdf5
@@ -186,7 +186,9 @@ graphs:
     - id: monitor
       module: timeflux_ui.nodes.ui
       class: UI
-    # Connect nodes
+    - id: gephistreamer
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gephistreamer
+      class: GephiStreamer
     edges:
 #      - source: Subscriber:raw
 #        target: Recorder:eeg_raw
@@ -202,8 +204,10 @@ graphs:
 #        target: GamepadWindow:eeg_gamepad_windowed
 #      - source: GamepadWindow:eeg_gamepad_windowed
 #        target: Gamepad:eeg_gamepad_windowed_to_play
-#      - source: Subscriber:coherence
-#        target: monitor:eeg_coherence
+      - source: Subscriber:coherence
+        target: monitor:eeg_coherence
+      - source: Subscriber:coherence
+        target: gephistreamer
       - source: Subscriber:gamepad
         target: monitor:eeg_gamepad
       - source: Subscriber:gamepad
@@ -649,22 +653,26 @@ graphs:
       module: timeflux.nodes.window
       class: Window
       params:
-        length: 1.0
-#        step: 0.1
-        step: 0.002
+#        length: 1.0
+        length: 0.625
+        step: 0.1
+#        step: 0.002
     - id: Coherence
       module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
-#      class: VJoy
       class: SpectralConnectivityEpochs
       params:
+#        ch_names_pick: ['C3','C4','Cz']
         ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#        epochs_con: 10
         epochs_con: 1
+#        method: plv
+#        method: ciplv
         method: coh
         fmin: 8
         fmax: 12
         n_jobs: 1
-        duration: 1
-        overlap: 0.1
+        duration: 0.625
+        overlap: 0.525
         sfreq: 512
     - id: PublisherCoherence
       module: timeflux.nodes.zmq
@@ -724,11 +732,14 @@ graphs:
 #        target: PublisherIIRFilter
 
 #      - source: acquire
-#        target: CoherenceWindow
-#      - source: CoherenceWindow
-#        target: Coherence
-#      - source: Coherence
-#        target: PublisherCoherence
+      - source: Subscriber:raw
+        target: dejitter
+      - source: dejitter
+        target: CoherenceWindow
+      - source: CoherenceWindow
+        target: Coherence
+      - source: Coherence
+        target: PublisherCoherence
 
 #      - source: Subscriber:raw
 #      - source: acquire
