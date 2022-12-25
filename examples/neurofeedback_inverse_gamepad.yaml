@@ -10,7 +10,7 @@ graphs:
 #      class: BrokerLVC
 
   # The main processing graph
-  - id: Processing
+  - id: AcquireEEG
     nodes:
 #    - id: random
 #      module: timeflux.nodes.random
@@ -104,7 +104,6 @@ graphs:
       class: Pub
       params:
         topic: raw
-      
     # Connect nodes
     edges:
 #      - source: random
@@ -126,6 +125,21 @@ graphs:
 #    rate: 64
 #    rate: 25
 
+  - id: AcquireGamepad
+    nodes:
+    - id: acquireInputDevice
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+      class: InputDevice
+    - id: PublisherInputDevice
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: InputDevice
+    edges:
+      - source: acquireInputDevice
+        target: PublisherInputDevice
+    rate: 10
+
   - id: StreamToBrowser
     nodes:
     # Receive data streams from the broker
@@ -145,6 +159,7 @@ graphs:
 #        - iirfilter
         - gamepad
         - coherence
+        - InputDevice
     - id: monitor
       module: timeflux_ui.nodes.ui
       class: UI
@@ -169,6 +184,8 @@ graphs:
         target: monitor:eeg_beta
       - source: Subscriber:alpha_beta_abs_avg
         target: monitor:eeg_alpha_beta_abs_avg
+      - source: Subscriber:InputDevice
+        target: monitor:gamepad_InputDevice
 #      - source: Subscriber:bands
 #        target: monitor:eeg_bands
 #      - source: Subscriber:iirfilter
@@ -215,8 +232,16 @@ graphs:
     - id: gephistreamer
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gephistreamer
       class: GephiStreamer
+    - id: LocQuery
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [ C4-C3 ]
+        axis: 1
     edges:
       - source: Subscriber:coherence
+#        target: LocQuery
+#      - source: LocQuery
         target: gephistreamer
     # Update file every second
 #    rate: 1
@@ -256,14 +281,48 @@ graphs:
     edges:
       - source: Subscriber:raw
         target: WriteBDFWindow
-      - source: WriteBDFWindow
-        target: Recorder
+#      - source: WriteBDFWindow
+#        target: Recorder
     # Update file every second
 #    rate: 1
 #    rate: 64
 #    rate: 512
 #    rate: 3
     rate: 10
+
+  - id: StreamToOSC
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - coherence
+    # Send to an external application
+    - id: OSC
+      module: timeflux.nodes.osc
+      class: Client
+      params:
+        address: /alpha
+    - id: LocQuery
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [ C4-C3 ]
+        axis: 1
+    edges:
+      - source: Subscriber:coherence
+        target: LocQuery
+#      - source: LocQuery
+#        target: gephistreamer
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 10
+
 
   # The recorder graph
   - id: ProcessToGamepad
@@ -308,12 +367,6 @@ graphs:
 #    - id: Bands
 #      module: timeflux_dsp.nodes.spectral
 #      class: Bands
-    # Send to an external application
-    - id: OSC
-      module: timeflux.nodes.osc
-      class: Client
-      params:
-        address: /alpha
 #    - id: GamepadWindow
 #      module: timeflux.nodes.window
 #      class: Window
@@ -675,36 +728,6 @@ graphs:
         topic: gamepad
       
 
-    - id: CoherenceWindow
-      module: timeflux.nodes.window
-      class: Window
-      params:
-#        length: 1.0
-        length: 0.625
-        step: 0.1
-#        step: 0.002
-    - id: Coherence
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
-      class: SpectralConnectivityEpochs
-      params:
-#        ch_names_pick: ['C3','C4','Cz']
-        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-#        epochs_con: 10
-        epochs_con: 1
-#        method: plv
-#        method: ciplv
-        method: coh
-        fmin: 8
-        fmax: 12
-        n_jobs: 1
-        duration: 0.625
-        overlap: 0.525
-        sfreq: 512
-    - id: PublisherCoherence
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: coherence
     - id: dejitter
       module: timeflux.nodes.dejitter
       class: Interpolate
@@ -756,16 +779,6 @@ graphs:
 #      - source: Bands
 #      - source: IIRFilter
 #        target: PublisherIIRFilter
-
-#      - source: acquire
-      - source: Subscriber:raw
-        target: dejitter
-      - source: dejitter
-        target: CoherenceWindow
-      - source: CoherenceWindow
-        target: Coherence
-      - source: Coherence
-        target: PublisherCoherence
 
 #      - source: Subscriber:raw
 #      - source: acquire
@@ -905,4 +918,66 @@ graphs:
 #    rate: 3
     rate: 10
 #    rate: 512
+
+  # The recorder graph
+  - id: ProcessToCircle
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+        - raw
+    - id: CoherenceWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+#        length: 1.0
+        length: 0.625
+        step: 0.1
+#        step: 0.002
+    - id: Coherence
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
+      class: SpectralConnectivityEpochs
+      params:
+#        ch_names_pick: ['C3','C4','Cz']
+        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#        epochs_con: 10
+        epochs_con: 1
+#        method: plv
+#        method: ciplv
+        method: coh
+        fmin: 8
+        fmax: 12
+        n_jobs: 1
+        duration: 0.625
+        overlap: 0.525
+        sfreq: 512
+        to_screen: True
+    - id: PublisherCoherence
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: coherence
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
+    # Connect nodes
+    edges:
+#      - source: acquire
+      - source: Subscriber:raw
+        target: dejitter
+      - source: dejitter
+        target: CoherenceWindow
+      - source: CoherenceWindow
+        target: Coherence
+      - source: Coherence
+        target: PublisherCoherence
+
 
