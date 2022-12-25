@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-#site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
-site_packages='./env_timeflux_coherence_circle/Lib/site-packages'
+#site_packages='./env_timeflux_neurofeedback_inverse_gamepad/lib/python3.9/site-packages'
+site_packages='./env_timeflux_neurofeedback_inverse_gamepad/Lib/site-packages'
 
 block_cipher = None
 
