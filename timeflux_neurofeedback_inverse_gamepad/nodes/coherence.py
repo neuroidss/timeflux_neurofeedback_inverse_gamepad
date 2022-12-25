@@ -22,7 +22,7 @@ class SpectralConnectivityEpochs(Node):
            :language: yaml
     """
 
-    def __init__(self, ch_names_pick, epochs_con, method, fmin, fmax, n_jobs, duration, overlap, sfreq):
+    def __init__(self, ch_names_pick, epochs_con, method, fmin, fmax, n_jobs, duration, overlap, sfreq, to_screen=False, vmin=0, con_name='neurofeedback', node_colors=None):
         """
         Args:
             value (int): The value to add to each cell.
@@ -38,6 +38,11 @@ class SpectralConnectivityEpochs(Node):
         self._duration = duration
         self._overlap = overlap
         self._sfreq = sfreq
+        self._to_screen = to_screen
+        self._vmin = vmin
+        self._con_name = con_name
+        self._node_colors = node_colors
+        self._index = None
         
         cons_len=int(len(self._ch_names_pick)*(len(self._ch_names_pick)-1)/2)
 #        fs_mult=3
@@ -49,6 +54,7 @@ class SpectralConnectivityEpochs(Node):
 #        cons=np.zeros((cons_dur,cons_len),dtype=float)
 
 
+        import numpy as np
         self._cohs_tril_indices=np.zeros((2,cons_len),dtype=int)
         cohs_tril_indices_count=0
         for cons_index_diag in range(len(self._ch_names_pick)):
@@ -65,6 +71,13 @@ class SpectralConnectivityEpochs(Node):
         for idx in range(len(self._cohs_tril_indices[0])):
           self._con_tril_names.append(self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]])
           self._con_tril_names_2.append((self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]], self._ch_names_pick[self._cohs_tril_indices[1][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[0][idx]]))
+        
+        if self._to_screen:
+          import numpy as np
+          import pyformulas as pf 
+          self._canvas = np.zeros((800,800))
+          self._screen = pf.screen(self._canvas, 'circle_cons')
+
         
 
     def update(self):
@@ -128,20 +141,63 @@ class SpectralConnectivityEpochs(Node):
 #        print('data:',data)
         self.o.data = data
             
+        if self._to_screen:
+            import numpy as np
+            import pyformulas as pf 
+            from mne_connectivity.viz import plot_connectivity_circle
+            import matplotlib.pyplot as plt
             
-#                        con_sort=np.sort(np.abs(conmat).ravel())[::-1]
+            con_sort=np.sort(np.abs(conmat).ravel())[::-1]
 #            con_sort=np.sort(np.abs(con).ravel())[::-1]
-#            n_lines=np.argmax(con_sort<vmin)
+            n_lines=np.argmax(con_sort<self._vmin)
             
-##                        fig,ax = plot_connectivity_circle(conmat, label_names, n_lines=n_lines, 
-#            fig,ax = plot_connectivity_circle(con[:, :, 0], label_names, n_lines=n_lines, 
-#            fig,ax = plot_connectivity_circle(con[:, :, 0], label_names,# n_lines=300, 
-#                                             title=input_fname_name+'_circle_'+methods[0]+'_'+str(int(bands[0][0]))+'-'+str(int(bands[0][1]))+'hz_'+str(len(epochs[0].events)-2), 
-##                title=input_fname_name+'_peaks_circle_'+methods[0]+'_'+f'{bands[0][0]:.1f}'+'-'+f'{bands[0][len(bands[0])-1]:.1f}'+'hz_'+'vmin'+str(vmin)+'\n'+f'{ji_fps:.2f}', 
-#                title=input_fname_name+'_circle_'+methods[0]+'_'+f'{freqs[0][0]:.1f}'+'-'+f'{freqs[0][len(freqs[0])-1]:.1f}'+'hz_'+'vmin'+str(vmin), 
-#               title=input_fname_name+'_circle_'+methods[0]+'_'+str(int(bands[0][0]))+'-'+str(int(bands[0][1]))+'hz_'+'vmin'+str(vmin)+str(len(epochs[0].events)-2)+'\n'+str(ji), 
-#                                             title=input_fname_name+'_circle_'+methods[0]+'_'+str(int(bands[0][0]))+'-'+str(int(bands[0][1]))+'hz_'+str(len(epochs[0].events)-2)+'_'+str(ji),
-##                                              node_colors=node_colors,
-##                                             show = False, vmin=vmin, vmax=1, fontsize_names=8)#, fig=fig)
-#                                             show = False, vmin=0, vmax=1, fontsize_names=8)#16)#, fig=fig)
-#         if True:
+            label_names = self._ch_names_pick
+            index = self.i.data.index[0]
+            if self._index is None:
+              self._index = index
+            index_delta = (index-self._index)
+
+            fig,ax = plot_connectivity_circle(conmat, label_names, n_lines=n_lines, 
+                title=self._con_name+'_circle_'+self._method+'_'+f'{self._fmin:.1f}'+'-'+f'{self._fmax:.1f}'+'hz_'+'vmin'+str(self._vmin)+'\n'+f'{index_delta.total_seconds():.2f}', 
+                                             show = False, vmin=self._vmin, vmax=1, fontsize_names=8, node_colors=self._node_colors)#, fig=fig)
+
+            fig.canvas.draw()
+
+            #image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+            image = np.frombuffer(fig.canvas.tostring_rgb(),'u1')  
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+            size1=16*4
+            size = 592+size1
+#            size = 608
+            #im3 = im1.resize((576, 576), Image.ANTIALIAS)
+            left=348-int(size/2)+int(size1/2)
+            top=404-int(size/2)+int(size1/16)
+
+            image_crop=image[top:top+size,left:left+size]   
+            #im2 = im1.crop((left, top, left+size, top+size))
+
+            rotate = True
+            if rotate:
+              image_rot90 = np.rot90(image_crop)
+              image=image_rot90
+#              screen.update(image_rot90)
+            else:
+              image=image_crop
+#            image_rot90 = np.rot90(image)
+
+#            screen.update(image)
+#              screen.update(image_crop)
+
+##            image = image[:,:,::-1]
+##            screen.update(image)
+
+            plt.close(fig)
+            del fig
+            
+            image = image[:,:,::-1]
+            self._screen.update(image)
+
+#            video_outs[shows_idx].append_data(image)
+
+

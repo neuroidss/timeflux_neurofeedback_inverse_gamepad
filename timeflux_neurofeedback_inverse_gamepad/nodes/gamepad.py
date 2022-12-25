@@ -2,6 +2,83 @@
 
 from timeflux.core.node import Node
 
+class InputDevice(Node):
+
+    """Adds ``value`` to each cell of the input.
+
+    This is one of the simplest possible nodes.
+
+    Attributes:
+        i (Port): Default input, expects DataFrame.
+        o (Port): Default output, provides DataFrame.
+
+    Example:
+        .. literalinclude:: /../examples/test.yaml
+           :language: yaml
+    """
+
+    def __init__(self):
+        """
+        Args:
+            value (int): The value to add to each cell.
+        """
+#        self._value = value
+        import evdev
+        from evdev import InputDevice, categorize, ecodes
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        for device in devices:
+          print(device.path, device.name, device.phys)
+        self._evdev_device = evdev.InputDevice('/dev/input/event9')
+        print(self._evdev_device)
+        print(self._evdev_device.capabilities())
+#        self._evdev_device_capabilities = self._evdev_device.capabilities()
+        print(self._evdev_device.capabilities(verbose=True))
+#        self._evdev_device_capabilities_verbose = self._evdev_device.capabilities(verbose=True)
+        print(self._evdev_device.capabilities(absinfo=False))
+#        self._evdev_device_capabilities_no_absinfo = self._evdev_device.capabilities(absinfo=False)
+        
+#        for capabilities_idx in self._evdev_device_capabilities(ecodes.EV_KEY):
+          
+        
+    def update(self):
+        import evdev
+        from evdev import InputDevice, _input, categorize, ecodes
+        import timeflux.helpers.clock as clock
+        import pandas as pd
+        
+#        for event in self._evdev_device.read_loop():
+#          if event.type == ecodes.EV_KEY:
+#            print(categorize(event))
+#            print(event)
+
+        indices = []#{}
+        columns = []#{}
+        data = []
+        now = clock.now()
+        indices.append(now)
+        for etype, ecodes in _input.ioctl_capabilities(self._evdev_device.fd).items():
+            for code in ecodes:
+#                l = res.setdefault(etype, [])
+                if isinstance(code, tuple):
+#                    if absinfo:
+                        columns.append(code[0])
+                        a = code[1]  # (0, 0, 0, 255, 0, 0)
+                        a0 = a[0]
+                        if (a0>=128-10) and (a0<=128+10) and (a[1]==0) and (a[2]==255):
+                          a0 = 128
+                        data.append((a0-a[1])/(a[2]-a[1]))
+#                        i = AbsInfo(*a)
+#                        l.append((code[0], i))
+#                    else:
+#                        l.append(code[0])
+#                else:
+#                    l.append(code)
+        
+#        data = pd.DataFrame(data, index = indices, columns = columns)
+        data = pd.DataFrame(data, index = columns, columns = indices)
+        data = data.T
+        self.o.data = data
+            
 
 class UInput(Node):
 
