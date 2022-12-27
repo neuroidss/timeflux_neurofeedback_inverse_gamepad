@@ -22,12 +22,13 @@ class StyleGAN3(Node):
            :language: yaml
     """
 
-    def __init__(self, files_path):
+    def __init__(self, files_path, to_screen=False):
         """
         Args:
             value (int): The value to add to each cell.
         """
 #        self._value = value
+        self._to_screen = to_screen
         files_path = [files_path]
 
 
@@ -100,6 +101,7 @@ class StyleGAN3(Node):
 
           import numpy as np
           import pyformulas as pf 
+        if self._to_screen:
           self._canvas = np.zeros((800,800))
           self._screen = pf.screen(self._canvas, 'stylegan3')
 
@@ -242,6 +244,7 @@ class StyleGAN3(Node):
 
                   image = np.asarray(img)
                   image = image[:,:,::-1]
+        if self._to_screen:
                   self._screen.update(image)
 
 

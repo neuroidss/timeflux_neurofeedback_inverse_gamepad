@@ -22,17 +22,21 @@ class Spectrum(Node):
            :language: yaml
     """
 
-    def __init__(self):
+    def __init__(self, to_screen=False):
         """
         Args:
             value (int): The value to add to each cell.
         """
 #        self._value = value
+        self._to_screen = to_screen
 
         if True:
 
           import numpy as np
           import pyformulas as pf 
+
+        if self._to_screen:
+
           self._canvas = np.zeros((800,800))
           self._screen = pf.screen(self._canvas, 'spectrum')
 
@@ -88,11 +92,14 @@ class Spectrum(Node):
 #            screen.update(image)
             image = image_crop
             image = image[:,:,::-1]
-            self._screen.update(image)
-#            screen.update(image_rot90)
 
             plt.close(fig)
             del fig
+
+        if self._to_screen:
+            
+            self._screen.update(image)
+#            screen.update(image_rot90)
 
 
 
