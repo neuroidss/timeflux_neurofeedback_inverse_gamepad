@@ -1011,14 +1011,17 @@ graphs:
     - id: Spectrum
       module: timeflux_neurofeedback_inverse_gamepad.nodes.spectrum
       class: Spectrum
+      params:
+        to_screen: False
+#        to_screen: True
 
     # Connect nodes
     edges:
 #      - source: acquire
       - source: Subscriber:coherence
         target: SpectrumWindow
-      - source: SpectrumWindow
-        target: Spectrum
+#      - source: SpectrumWindow
+#        target: Spectrum
     rate: 10
 
   # The recorder graph

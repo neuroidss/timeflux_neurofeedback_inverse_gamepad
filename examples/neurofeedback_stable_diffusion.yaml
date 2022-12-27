@@ -988,7 +988,7 @@ graphs:
     rate: 10
 
   # The recorder graph
-  - id: ProcessToStyleGAN3
+  - id: ProcessToStableDiffusion
     nodes:
     # Receive data streams from the broker
     - id: Subscriber
@@ -999,43 +999,33 @@ graphs:
 #        topics: [ raw, bands ]
         - raw
         - coherence
-    - id: StyleGAN3
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.stylegan3
-      class: StyleGAN3
+    - id: StableDiffusion
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.stable_diffusion
+      class: StableDiffusion
       params:
 #        to_screen: False
         to_screen: True
-        files_path:
-          ['1ie1vWw1JNsfrZWRtMvhteqzVz4mt4KGa', 'model/sg2-ada_abstract_network-snapshot-000188.pkl', 'sg2-ada_abstract_network-snapshot-000188','stylegan2-ada']
-#          ['1aUrChOhq5jDEddZK1v_Dp1vYNlHSBL9o', 'model/sg2-ada_2020-01-11-skylion-stylegan2-animeportraits-networksnapshot-024664.pkl', 'sg2-ada_2020-01-11-skylion-stylegan2-animeportraits-networksnapshot-024664','stylegan2-ada']
-#                ['1UP200H32RIvVYA_9TduGqIbvqfsFjpkg', 'sg3-model/', 'stylegan3-anime-faces-generator_akiyamasho', '.pkl', 'sg3_model'],
-#                ['1aMsP1juT3DzZpbEhcNWO_gJVw9lt7Ant', 'sg3-model/', 'stylegan3-r-afhqv2-512x512', '.pkl', 'sg3_model'],
-#                ['1Buunx_0kHIWdNWqRq6CBG0ILlAlcPVOb', 'sg3-model/', 'stylegan3-r-ffhq-1024x1024', '.pkl', 'sg3_model'],
-#                ['1YiCvVqosdRwta3qwMQHNAzuSRGKnSRp1', 'sg3-model/', 'stylegan3-r-ffhqu-256x256', '.pkl', 'sg3_model'],
-#                ['1z42DkzZUFhMpuWFHtMNvD6GApcL1lwG7', 'sg3-model/', 'stylegan3-r-ffhqu-1024x1024', '.pkl', 'sg3_model'],
-#                ['1BOln2JzcatBT6LTqbsdmrwVb8GJzvhNa', 'sg3-model/', 'stylegan3-r-metfaces-1024x1024', '.pkl', 'sg3_model'],
-#                ['1lh8nIxnX-xmBuu1QQokfFPBvZQPXEo0e', 'sg3-model/', 'stylegan3-r-metfacesu-1024x1024', '.pkl', 'sg3_model'],
-#                ['18ZAuZj9fWwbHx07RB8COJsepnOYtyHli', 'sg3-model/', 'stylegan3-t-afhqv2-512x512', '.pkl', 'sg3_model'],
-#                ['14OyRIEfpvhKkHooMpCKnzM3cDkOTXr6p', 'sg3-model/', 'stylegan3-t-ffhq-1024x1024', '.pkl', 'sg3_model'],
-#                ['1Yb5Cvf2DQ57-hX37gc4dq_Mo2UFMetnw', 'sg3-model/', 'stylegan3-t-ffhqu-256x256', '.pkl', 'sg3_model'],
-#                ['1XwObqI_egXDiKXoEaCn83utVEzM7Miln', 'sg3-model/', 'stylegan3-t-ffhqu-1024x1024', '.pkl', 'sg3_model'],
-#                ['1DH6C87Xr5wSG5mPZ8Y9GZgymsgBMTzMP', 'sg3-model/', 'stylegan3-t-metfaces-1024x1024', '.pkl', 'sg3_model'],
-#                ['11Mn6U-mcJulhSzUetwX1Q03h7EXrZxS_', 'sg3-model/', 'stylegan3-t-metfacesu-1024x1024', '.pkl', 'sg3_model'],
-#                ['1Ncs7wUsbfSEPJCcxiTLDOYjLT6UY9wT2', 'sg3-model/', 'sg3_alien-sunglases-256_network-snapshot-000074', '.pkl', 'sg3_model'],
-#                ['1CtKjqv7Te5X3L0KuZLIbzi7fbmpLakYS', 'sg3-model/', 'sg3_Benches-512_network-snapshot-011000', '.pkl', 'sg3_model'],
-#                ['15LkW8nCsVRrzjjYTVGlUJSnfGDi1RwyI', 'sg3-model/', 'sg3_flowers-256_network-snapshot-000069', '.pkl', 'sg3_model'],
-#                ['1RcmJNbWy9As2OMVGiVhMFM0qUKCYB1IK', 'sg3-model/', 'sg3_Landscapes_lhq-256-stylegan3-t-25Mimg', '.pkl', 'sg3_model'],
-#                ['1iO_T0MvNw59MPAueoqUHKzpoh40vyLrZ', 'sg3-model/', 'sg3_mechanical-devices-from-the-future-256_network-snapshot-000029', '.pkl', 'sg3_model'],
-#                ['1mMZSFynUd_6AIuC8PkDWdeHWY4VyIqYm', 'sg3-model/', 'sg3_scifi-city-256_network-snapshot-000210', '.pkl', 'sg3_model'],
-#                ['14DpmYfsX3K9JhkS0BV5YtgZ71wJOInsd', 'sg3-model/', 'sg3_scifi-spaceship-256_network-snapshot-000162', '.pkl', 'sg3_model'],
-#                ['13Q5bDnng7VfqYq6g-t8jVybR-E_Df_q3', 'sg3-model/', 'sg3_wikiart-1024-stylegan3-t-17.2Mimg', '.pkl', 'sg3_model'],
-#                ['10Q6npsBKdRWMb0LxZUzN6FBSNeB4KTA6', 'sg3-model/', 'sg3_yellow-alien-512_network-snapshot-000236', '.pkl', 'sg3_model'],
-#                ['10l7ADbHmZgjSrrpNzOD8r5grJqwxfRd3', 'sg3-model/', 'stylegan3_sneaksnap', '.pkl', 'sg3_model']
+        huggingface_hub_token: 'huggingface_hub_token'
+        unet_height: 512
+        unet_width: 512
+#        unet_height: 256
+#        unet_width: 256
+        num_inference_steps: 10
+#        num_inference_steps: 50
+        unet_num_inference_steps: 10
+#        unet_num_inference_steps: 5
+        unet_latents: null
+        unet_guidance_scale: 7.5
+        apply_to_latents: 10
+#        apply_to_latents: 0.5
+        apply_to_embeds: 10
+#        apply_to_embeds: 1
+        clip_prompt: 'villa by the sea in florence on a sunny day'
     # Connect nodes
     edges:
 #      - source: acquire
       - source: Subscriber:coherence
-        target: StyleGAN3
+        target: StableDiffusion
     rate: 10
 
 
