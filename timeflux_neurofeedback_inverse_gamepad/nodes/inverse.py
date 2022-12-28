@@ -22,7 +22,7 @@ class ApplyInverseEpochs(Node):
            :language: yaml
   """
 
-  def __init__(self, ch_names_pick, duration, overlap, sfreq, to_screen=False, cache_fwd=True, fname_fwd=None, raw_fname=None, from_bdf=None, epochs_con=10, epochs_inverse_con=1, epochs_inverse_cov=165, inverse_subject='fsaverage', inverse_snr=1.0, inverse_method='dSPM', inverse_parc='HCPMMP1', inverse_standard_montage='standard_1005', gamepad_inverse_peaks_labels0=None, gamepad_inverse_peaks_labels1=None, gamepad_inverse_peaks_label=None):
+  def __init__(self, ch_names_pick, duration, overlap, sfreq, to_screen=False, cache_fwd=True, fname_fwd=None, raw_fname=None, from_bdf=None, epochs_con=10, epochs_inverse_con=1, epochs_inverse_cov=165, inverse_subject='fsaverage', inverse_snr=1.0, inverse_method='dSPM', inverse_parc='HCPMMP1', inverse_standard_montage='standard_1005', gamepad_inverse_peaks_labels0=None, gamepad_inverse_peaks_labels1=None, gamepad_inverse_peaks_label=None, replace_minus_to_underscore=True):
    """
         Args:
             value (int): The value to add to each cell.
@@ -45,6 +45,7 @@ class ApplyInverseEpochs(Node):
         self._gamepad_inverse_peaks_labels0 = gamepad_inverse_peaks_labels0
         self._gamepad_inverse_peaks_labels1 = gamepad_inverse_peaks_labels1
         self._gamepad_inverse_peaks_label = gamepad_inverse_peaks_label
+        self._replace_minus_to_underscore = replace_minus_to_underscore
 
 
         self._ch_names_pick = ch_names_pick
@@ -274,7 +275,10 @@ class ApplyInverseEpochs(Node):
    if True:
                 self._labels_parc_names = []
                 for label in self._labels_parc:
-                  self._labels_parc_names.append(label.name)
+                  if self._replace_minus_to_underscore:
+                    self._labels_parc_names.append(label.name.replace("-", "_"))
+                  else:
+                    self._labels_parc_names.append(label.name)
 
    if True:
      self._inv = None

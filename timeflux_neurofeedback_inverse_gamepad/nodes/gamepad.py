@@ -28,7 +28,8 @@ class InputDevice(Node):
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         for device in devices:
           print(device.path, device.name, device.phys)
-        self._evdev_device = evdev.InputDevice('/dev/input/event9')
+#        self._evdev_device = evdev.InputDevice('/dev/input/event0')
+        self._evdev_device = evdev.InputDevice(device.path)
         print(self._evdev_device)
         print(self._evdev_device.capabilities())
 #        self._evdev_device_capabilities = self._evdev_device.capabilities()

@@ -89,8 +89,8 @@ class SpectralConnectivityEpochs(Node):
           self._con_tril_names = []
           self._con_tril_names_2 = []
           for idx in range(len(self._cohs_tril_indices[0])):
-            self._con_tril_names.append(self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]])
-            self._con_tril_names_2.append((self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]], self._ch_names_pick[self._cohs_tril_indices[1][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[0][idx]]))
+            self._con_tril_names.append(self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'__'+self._ch_names_pick[self._cohs_tril_indices[1][idx]])
+            self._con_tril_names_2.append((self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'__'+self._ch_names_pick[self._cohs_tril_indices[1][idx]], self._ch_names_pick[self._cohs_tril_indices[1][idx]]+'__'+self._ch_names_pick[self._cohs_tril_indices[0][idx]]))
 
         raw_data = self.i.data[self._ch_names_pick].to_numpy().T
 

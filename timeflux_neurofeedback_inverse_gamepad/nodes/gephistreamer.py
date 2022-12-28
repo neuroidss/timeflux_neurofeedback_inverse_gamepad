@@ -66,7 +66,7 @@ class GephiStreamer(Node):
               if port.data is not None:
 #                print('port.data.iteritems():',port.data.iteritems())
                 for (colname,colval) in port.data.items():
-                  nodes_names = colname.split("-")
+                  nodes_names = colname.split("__")
                   self._nodes[nodes_names[0]] = graph.Node(nodes_names[0])
                   self._nodes[nodes_names[1]] = graph.Node(nodes_names[1])
 #                  if self._nodes[nodes_names[0]] and self._nodes[nodes_names[1]]:
