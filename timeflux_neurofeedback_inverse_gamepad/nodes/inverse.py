@@ -7,7 +7,7 @@ import numpy as np
 import mne
 from mne_connectivity import spectral_connectivity_epochs
 
-class Inverse(Node):
+class ApplyInverseEpochs(Node):
 
   """Adds ``value`` to each cell of the input.
 
@@ -304,7 +304,8 @@ class Inverse(Node):
 
 
 
-
+   if True:
+     self._inv = None
 
 
 
@@ -387,44 +388,47 @@ class Inverse(Node):
 
 
 
-        if True:
+        if self._inv is None:
+#        if True:
 #   if False:
 #        if show_inverse_3d or show_inverse_circle_cons:
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmin=0.0, tmax=0.1, n_jobs=10)
 #            cov = mne.compute_covariance(epochs[0][ji:ji+75], tmax=0., n_jobs=cuda_jobs, verbose=False)
             
-            cov = mne.compute_covariance(epochs[-self._epochs_inverse_cov:], n_jobs=1, verbose='CRITICAL')
+            self._cov = mne.compute_covariance(epochs[-self._epochs_inverse_cov:], n_jobs=1, verbose='CRITICAL')
 #              cov = mne.compute_covariance(epochs[0][:-epochs_inverse_cov], tmax=0., n_jobs=cuda_jobs, verbose='CRITICAL')
 #            else:
 #              cov = mne.compute_covariance(epochs[ji:ji+epochs_inverse_cov], tmax=0., n_jobs=cuda_jobs, verbose='CRITICAL')
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmin=0.0, tmax=0.1, n_jobs=10)
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmax=0., n_jobs=10)
 #     cov = mne.compute_covariance(epochs, tmax=0.)
-            evoked = epochs[len(epochs)-1].average()  # trigger 1 in auditory/left
+            self._evoked = epochs[len(epochs)-1].average()  # trigger 1 in auditory/left
 #            evoked = epochs[0][ji].average()  # trigger 1 in auditory/left
 #            evoked.plot_joint()
    
-            inv = mne.minimum_norm.make_inverse_operator(
-                  evoked.info, self._fwd, cov, 
+            self._inv = mne.minimum_norm.make_inverse_operator(
+                  self._evoked.info, self._fwd, self._cov, 
                   verbose=False, 
 #                  verbose=True, 
                   depth=None, fixed=False)
 
+            self._src = self._inv['src']
+
+        if True:
             stcs = apply_inverse_epochs(
 #                    epochs[0][ji:ji+1], 
 #                    epochs[0][ji:ji+n_jobs],
 #                    epochs,
                     epochs[-self._epochs_inverse_con:],
-                    inv, self._lambda2, self._inv_method,
+                    self._inv, self._lambda2, self._inv_method,
                                           pick_ori=None, return_generator=True, verbose='CRITICAL')
 
               # Average the source estimates within each label of the cortical parcellation
               # and each sub-structure contained in the source space.
               # When mode = 'mean_flip', this option is used only for the cortical labels.
-            src = inv['src']
             
             label_ts = mne.extract_label_time_course(
-                  stcs, self._labels_parc, src, mode='mean_flip', 
+                  stcs, self._labels_parc, self._src, mode='mean_flip', 
                   allow_empty=False,
 #                  allow_empty=True,
                   return_generator=False, 
