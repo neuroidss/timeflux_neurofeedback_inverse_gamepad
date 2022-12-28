@@ -43,34 +43,8 @@ class SpectralConnectivityEpochs(Node):
         self._con_name = con_name
         self._node_colors = node_colors
         self._index = None
-        
-        cons_len=int(len(self._ch_names_pick)*(len(self._ch_names_pick)-1)/2)
-#        fs_mult=3
-#        audio_volume_mult=200
-#  cons_dur=fs_mult#fps
-#        cons_dur=int(fps*10)
-#        audio_cons_fs=int(cons_len*(fs_mult-0.0))
-#        cons_index=0
-#        cons=np.zeros((cons_dur,cons_len),dtype=float)
 
-
-        import numpy as np
-        self._cohs_tril_indices=np.zeros((2,cons_len),dtype=int)
-        cohs_tril_indices_count=0
-        for cons_index_diag in range(len(self._ch_names_pick)):
-          for cons_index_diag_2 in range(2):
-            for cons_index_diag_r in range(cons_index_diag+1):
-              cons_index_diag_r_i=(cons_index_diag-cons_index_diag_r)
-              if cons_index_diag+cons_index_diag_r+cons_index_diag_2+1<len(self._ch_names_pick):
-                if cohs_tril_indices_count<cons_len:
-                  self._cohs_tril_indices[0][cohs_tril_indices_count]=cons_index_diag+cons_index_diag_r+cons_index_diag_2+1
-                  self._cohs_tril_indices[1][cohs_tril_indices_count]=cons_index_diag_r_i
-                  cohs_tril_indices_count=cohs_tril_indices_count+1
-        self._con_tril_names = []
-        self._con_tril_names_2 = []
-        for idx in range(len(self._cohs_tril_indices[0])):
-          self._con_tril_names.append(self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]])
-          self._con_tril_names_2.append((self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]], self._ch_names_pick[self._cohs_tril_indices[1][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[0][idx]]))
+        self._cohs_tril_indices=None
         
         if self._to_screen:
           import numpy as np
@@ -86,6 +60,37 @@ class SpectralConnectivityEpochs(Node):
 
         self.o.meta = self.i.meta
         self.o.data = self.i.data.tail(1)
+
+        if self._cohs_tril_indices is None:
+          if self._ch_names_pick is None:
+            self._ch_names_pick = list(self.i.data.columns)
+
+          cons_len=int(len(self._ch_names_pick)*(len(self._ch_names_pick)-1)/2)
+#        fs_mult=3
+#        audio_volume_mult=200
+#  cons_dur=fs_mult#fps
+#        cons_dur=int(fps*10)
+#        audio_cons_fs=int(cons_len*(fs_mult-0.0))
+#        cons_index=0
+#        cons=np.zeros((cons_dur,cons_len),dtype=float)
+
+          import numpy as np
+          self._cohs_tril_indices=np.zeros((2,cons_len),dtype=int)
+          cohs_tril_indices_count=0
+          for cons_index_diag in range(len(self._ch_names_pick)):
+            for cons_index_diag_2 in range(2):
+              for cons_index_diag_r in range(cons_index_diag+1):
+                cons_index_diag_r_i=(cons_index_diag-cons_index_diag_r)
+                if cons_index_diag+cons_index_diag_r+cons_index_diag_2+1<len(self._ch_names_pick):
+                  if cohs_tril_indices_count<cons_len:
+                    self._cohs_tril_indices[0][cohs_tril_indices_count]=cons_index_diag+cons_index_diag_r+cons_index_diag_2+1
+                    self._cohs_tril_indices[1][cohs_tril_indices_count]=cons_index_diag_r_i
+                    cohs_tril_indices_count=cohs_tril_indices_count+1
+          self._con_tril_names = []
+          self._con_tril_names_2 = []
+          for idx in range(len(self._cohs_tril_indices[0])):
+            self._con_tril_names.append(self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]])
+            self._con_tril_names_2.append((self._ch_names_pick[self._cohs_tril_indices[0][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[1][idx]], self._ch_names_pick[self._cohs_tril_indices[1][idx]]+'-'+self._ch_names_pick[self._cohs_tril_indices[0][idx]]))
 
         raw_data = self.i.data[self._ch_names_pick].to_numpy().T
 

@@ -22,7 +22,7 @@ class ApplyInverseEpochs(Node):
            :language: yaml
   """
 
-  def __init__(self, ch_names_pick, duration, overlap, sfreq, to_screen=False, cache_fwd=True, fname_fwd=None, raw_fname=None, from_bdf=None, epochs_con=10, epochs_inverse_con=1, epochs_inverse_cov=165, inverse_subject='fsaverage', inverse_snr=1.0, inverse_method='dSPM', inverse_parc='HCPMMP1', inverse_standard_montage='standard_1005', gamepad_inverse_peaks_labels0 = None, gamepad_inverse_peaks_labels1 = None, gamepad_inverse_peaks_label = None):
+  def __init__(self, ch_names_pick, duration, overlap, sfreq, to_screen=False, cache_fwd=True, fname_fwd=None, raw_fname=None, from_bdf=None, epochs_con=10, epochs_inverse_con=1, epochs_inverse_cov=165, inverse_subject='fsaverage', inverse_snr=1.0, inverse_method='dSPM', inverse_parc='HCPMMP1', inverse_standard_montage='standard_1005', gamepad_inverse_peaks_labels0=None, gamepad_inverse_peaks_labels1=None, gamepad_inverse_peaks_label=None):
    """
         Args:
             value (int): The value to add to each cell.
@@ -64,27 +64,6 @@ class ApplyInverseEpochs(Node):
 
     import pandas as pd
     import numpy as np      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    if True:
        # -*- coding: utf-8 -*-
@@ -234,9 +213,6 @@ class ApplyInverseEpochs(Node):
        raw=None
    
    
-   
-   
-  
    if True:
               # Compute inverse solution and for each epoch
 #              snr = 1.0           # use smaller SNR for raw data
@@ -295,57 +271,21 @@ class ApplyInverseEpochs(Node):
           else:
             self._label = None
 
-
-
    if True:
                 self._labels_parc_names = []
                 for label in self._labels_parc:
                   self._labels_parc_names.append(label.name)
 
-
-
    if True:
      self._inv = None
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
    if True:
           import numpy as np
           import pyformulas as pf 
-   if self._to_screen:
-          self._canvas = np.zeros((800,800))
-          self._screen = pf.screen(self._canvas, 'stylegan3')
+#   if self._to_screen:
+#          self._canvas = np.zeros((800,800))
+#          self._screen = pf.screen(self._canvas, 'stylegan3')
 
   def update(self):
         # Make sure we have a non-empty dataframe
@@ -355,16 +295,12 @@ class ApplyInverseEpochs(Node):
 
         self.i.data 
             
-
-
-
-
         import numpy as np
         import matplotlib.pyplot as plt
         import PIL.Image
         from matplotlib.colors import LinearSegmentedColormap
         import mne
-        from mne.minimum_norm import make_inverse_operator, apply_inverse_epochs
+        from mne.minimum_norm import make_inverse_operator, apply_inverse_epochs, apply_inverse_raw
         from mne_connectivity import spectral_connectivity_epochs
         import numpy as np
         from mne.viz import circular_layout
@@ -382,7 +318,10 @@ class ApplyInverseEpochs(Node):
         raw.set_montage(self._mon)
         raw.set_eeg_reference(projection=True).apply_proj()
         
-        epochs = mne.make_fixed_length_epochs(raw, 
+#        if show_inverse_circle_cons:
+#        if True:
+        if False:
+          epochs = mne.make_fixed_length_epochs(raw, 
                                             duration=self._duration, preload=True, overlap=self._overlap, 
                                             verbose='ERROR')
 
@@ -394,6 +333,10 @@ class ApplyInverseEpochs(Node):
 #        if show_inverse_3d or show_inverse_circle_cons:
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmin=0.0, tmax=0.1, n_jobs=10)
 #            cov = mne.compute_covariance(epochs[0][ji:ji+75], tmax=0., n_jobs=cuda_jobs, verbose=False)
+
+            epochs = mne.make_fixed_length_epochs(raw, 
+                                            duration=self._duration, preload=True, overlap=self._overlap, 
+                                            verbose='ERROR')
             
             self._cov = mne.compute_covariance(epochs[-self._epochs_inverse_cov:], n_jobs=1, verbose='CRITICAL')
 #              cov = mne.compute_covariance(epochs[0][:-epochs_inverse_cov], tmax=0., n_jobs=cuda_jobs, verbose='CRITICAL')
@@ -402,19 +345,25 @@ class ApplyInverseEpochs(Node):
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmin=0.0, tmax=0.1, n_jobs=10)
 #            cov = mne.compute_covariance(epochs[0][ji:ji+10], tmax=0., n_jobs=10)
 #     cov = mne.compute_covariance(epochs, tmax=0.)
-            self._evoked = epochs[len(epochs)-1].average()  # trigger 1 in auditory/left
+#        if True:
+            if False:
+              self._evoked = epochs[len(epochs)-1].average()  # trigger 1 in auditory/left
 #            evoked = epochs[0][ji].average()  # trigger 1 in auditory/left
 #            evoked.plot_joint()
    
             self._inv = mne.minimum_norm.make_inverse_operator(
-                  self._evoked.info, self._fwd, self._cov, 
+#                  self._evoked.info, 
+                  self._raw.info, 
+                  self._fwd, self._cov, 
                   verbose=False, 
 #                  verbose=True, 
                   depth=None, fixed=False)
 
             self._src = self._inv['src']
 
-        if True:
+#        if show_inverse_circle_cons:
+#        if True:
+        if False:
             stcs = apply_inverse_epochs(
 #                    epochs[0][ji:ji+1], 
 #                    epochs[0][ji:ji+n_jobs],
@@ -422,6 +371,13 @@ class ApplyInverseEpochs(Node):
                     epochs[-self._epochs_inverse_con:],
                     self._inv, self._lambda2, self._inv_method,
                                           pick_ori=None, return_generator=True, verbose='CRITICAL')
+#        else: #if not show_inverse_circle_cons:
+        if True:
+            stcs = apply_inverse_raw(raw,
+                    self._inv, self._lambda2, self._inv_method,
+                                          pick_ori=None, verbose='CRITICAL')
+
+
 
               # Average the source estimates within each label of the cortical parcellation
               # and each sub-structure contained in the source space.
@@ -448,24 +404,203 @@ class ApplyInverseEpochs(Node):
 #            print(self.i.data.index)
             
             
-            
 
 #        data = pd.DataFrame(label_ts[0], columns = self._labels_parc, index = [self.i.data.index[-self._epochs_inverse_con:]])
-        data = pd.DataFrame(label_ts[0].T, columns = self._labels_parc_names, index = self.i.data.index[-len(label_ts[0].T):])
+        if True:
+#        if not show_inverse_circle_cons:
+          data = pd.DataFrame(label_ts.T, columns = self._labels_parc_names, index = self.i.data.index)
+#        data = pd.DataFrame(label_ts[0].T, columns = self._labels_parc_names, index = self.i.data.index[-len(label_ts[0].T):])
+        
 #        data = pd.DataFrame(con_tril, index = self._con_tril_names_2)
 #        data.index = pd.MultiIndex.from_tuples(data.index, names=['0-1','1-0'])
 #        data = data.T
 
-        self.o.data = data
+          self.o.data = data
             
 
+        if False:
+#        else: #if True:
+            if show_inverse_circle_cons:
 
-#        if self._to_screen:
-#                  self._screen.update(image)
+              
+#              print('label_ts:',label_ts)
+              con = spectral_connectivity_epochs(
+                  label_ts, method=self._method, mode='multitaper', sfreq=sfreq, fmin=fmin,
+                  fmax=fmax, faverage=True, mt_adaptive=True, n_jobs=n_jobs, verbose=False)
+
+              conmat = con.get_data(output='dense')[:, :, 0]
+#          print(conmat.shape)
+#          cons[1:,:] = cons[:len(cons),:]
+              con_tril=conmat[(self._cohs_tril_indices[0],self._cohs_tril_indices[1])].flatten('F')
+
+#        print('con_tril:',con_tril)
+#        data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[0]])
+              data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[self.i.data.index.size-1]])
+#        data = pd.DataFrame(con_tril, index = self._con_tril_names_2)
+#        data.index = pd.MultiIndex.from_tuples(data.index, names=['0-1','1-0'])
+              data = data.T
+#        data.index[0] = self.i.data.index[0]
+        
+#        data.columns = self._con_tril_names
+#        data.columns = self._con_tril_names_2
+#        data.columns = pd.MultiIndex.from_tuples(self._con_tril_names_2)
+#        print('data:',data)
+              self.o.meta = self.i.meta
+#              self.o.data = self.i.data.tail(1)
+              self.o.data = data
+
+              if True:
+#              if False:
+              # We create a list of Label containing also the sub structures
+                labels_aseg = mne.get_volume_labels_from_src(src, subject, subjects_dir)
+              
+              
+                labels = labels_parc + labels_aseg
+                
+#              labels = labels_parc
+#              print('len(labels), labels:', len(labels), labels)
+
+              # read colors
+              node_colors = [label.color for label in labels]
+              
+              # We reorder the labels based on their location in the left hemi
+              label_names = [label.name for label in labels]
+              lh_labels = [name for name in label_names if name.endswith('lh')]
+              rh_labels = [name for name in label_names if name.endswith('rh')]
+#              print('len(lh_labels), lh_labels:', len(lh_labels), lh_labels)
+#              print('len(rh_labels), rh_labels:', len(rh_labels), rh_labels)
+
+              # Get the y-location of the label
+              label_ypos_lh = list()
+              for name in lh_labels:
+                  idx = label_names.index(name)
+                  ypos = np.mean(labels[idx].pos[:, 1])
+                  label_ypos_lh.append(ypos)
+              try:
+                  idx = label_names.index('Brain-Stem')
+              except ValueError:
+                  pass
+              else:
+                  ypos = np.mean(labels[idx].pos[:, 1])
+                  lh_labels.append('Brain-Stem')
+                  label_ypos_lh.append(ypos)
+
+              # Reorder the labels based on their location
+              lh_labels = [label for (yp, label) in sorted(zip(label_ypos_lh, lh_labels))]
+
+              # For the right hemi
+              if lh_labels[0].startswith('L_'):
+                  rh_labels = ['R_'+label[2:-2] + 'rh' for label in lh_labels
+                           if label != 'Brain-Stem' and 'R_'+label[2:-2] + 'rh' in rh_labels]
+              else:
+                  rh_labels = [label[:-2] + 'rh' for label in lh_labels
+                           if label != 'Brain-Stem' and label[:-2] + 'rh' in rh_labels]
+#              lh_labels = ['L_'+label[2:-2] + 'rh' for label in lh_labels
+#                           if label != 'Brain-Stem' and 'L_'+label[2:-2] + 'rh' in lh_labels]
+
+              # Save the plot order
+              node_order = lh_labels[::-1] + rh_labels
+#              print('rh_labels: ', rh_labels)
+              
+#              print('len(label_names), len(node_order), label_names, node_order:', len(label_names), len(node_order), label_names, node_order)
+
+              node_angles = circular_layout(label_names, node_order, start_pos=90,
+                                            group_boundaries=[0, len(label_names) // 2])
+
+              # Plot the graph using node colors from the FreeSurfer parcellation. We only
+              # show the 300 strongest connections.
+              conmat = con.get_data(output='dense')[:, :, 0]
+#              fig, ax = plt.subplots(figsize=(8, 8), facecolor='black',
+#                                     subplot_kw=dict(polar=True))
+
+              con_sort=np.sort(np.abs(conmat).ravel())[::-1]
+              n_lines=np.argmax(con_sort<vmin)
+              
+              
+#              input_fname_name
+#              title=input_fname_name+'_circle_'+methods[0]+'_'+f'{bands[0][0]:.1f}'+'-'+f'{bands[0][len(bands[0])-1]:.1f}'+'hz_'+'vmin'+str(vmin)+'\n'+str(n_generate)+'/'+str(ji)
+              px = 1/plt.rcParams['figure.dpi']  # pixel in inches
+#              fig = plt.figure(figsize=(1024*px, 1024*px))
+#              fig, ax = plt.subplots(figsize=(800*px, 800*px), facecolor='black',
+              fig, ax = plt.subplots(figsize=(1500*px, 1500*px), facecolor='black',
+#              fig, ax = plt.subplots(figsize=(1400*px, 1400*px), facecolor='black',
+#              fig, ax = plt.subplots(figsize=(1024*px, 1024*px), facecolor='black',
+                       subplot_kw=dict(polar=True))
+#              fig = plt.figure(figsize=(800*px, 800*px))
+              title=input_fname_name+'_inverse_circle_'+methods[0]+'_'+f'{bands[0][0]:.1f}'+'-'+f'{bands[0][len(bands[0])-1]:.1f}'+'hz_'+'vmin'+str(vmin)+'_'+'parc-'+inverse_parc+'_'+'epochs-'+str(epochs_inverse_con)+'\n'+f'{ji_fps:.2f}'
+              
+              fig,ax = plot_connectivity_circle(conmat, label_names, n_lines=n_lines, title=title, 
+                                             show = False, vmin=vmin, vmax=1, 
+#                                             fontsize_names=4,
+                                             fontsize_names=5,
+#                                             fontsize_names=5.5,
+#                                             fontsize_names=6,
+#                                             fontsize_names=8,
+#                                       node_height = 0.5,
+                                       padding=1.2,
+                                       ax=ax,
+                                       node_angles=node_angles, node_colors=node_colors)
+#              plot_connectivity_circle(conmat, label_names, n_lines=300,
+#                                       node_angles=node_angles, node_colors=node_colors,
+#                                       title='All-to-All Connectivity left-Auditory '
+#                                       'Condition (PLI)')#, ax=ax)#, fig=fig)
+#              fig.tight_layout()            
+#              plt.savefig('inverse_coh.png', facecolor='black', format='png')
+
+              fig.canvas.draw()
+ 
+            #image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+              image = np.frombuffer(fig.canvas.tostring_rgb(),'u1')  
+              image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+              size1=16*8
+##              size = 592+size1
+              size = 1024
+              
+            #im3 = im1.resize((576, 576), Image.ANTIALIAS)
+#              left=348-int(size/2)+int(size1/2)
+#              top=404-int(size/2)+int(size1/16)
+              left=150
+              top=240
+#              left=150
+#              top=240
+
+              image_crop=image[top:top+size,left:left+size]   
+              image=image_crop
+#              image=image.resize((800, 800), Image.ANTIALIAS)
+            #im2 = im1.crop((left, top, left+size, top+size))
+
+#              if FLAGS.rotate:
+#                image_rot90 = np.rot90(image_crop)
+#                image=image_rot90
+#              screen.update(image_rot90)
+#              else:
+#                image=image_crop
+#            image_rot90 = np.rot90(image)
+
+#            screen.update(image)
+#              screen.update(image_crop)
+
+#              if write_video:
+#                video_out.append_data(image)
+#                video_out.close()
+#              image = image[:,:,::-1]
+#              screen5.update(image)
+
+              plt.close(fig)
+              del fig            
+
+            if self._to_screen:
+                  self._screen.update(image)
 
 
 
 
 #            video_outs[shows_idx].append_data(image)
+
+
+
+
+
 
 
