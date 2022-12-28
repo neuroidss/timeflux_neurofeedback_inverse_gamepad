@@ -161,7 +161,7 @@ graphs:
         - gamepad
         - coherence
         - InputDevice
-        - inverse
+        - inverse_sources
     - id: monitor
       module: timeflux_ui.nodes.ui
       class: UI
@@ -188,7 +188,7 @@ graphs:
         target: monitor:eeg_alpha_beta_abs_avg
       - source: Subscriber:InputDevice
         target: monitor:gamepad_InputDevice
-      - source: Subscriber:inverse
+      - source: Subscriber:inverse_sources
         target: monitor:inverse_sources
 #      - source: Subscriber:bands
 #        target: monitor:eeg_bands
@@ -1013,22 +1013,25 @@ graphs:
       module: timeflux.nodes.window
       class: Window
       params:
-#        length: 1.0
-        length: 0.625
-        step: 0.1
+        length: 1
+#        length: 0.625
+#        step: 0.625
+        step: 1
 #        step: 0.002
     - id: PublisherInverse
       module: timeflux.nodes.zmq
       class: Pub
       params:
-        topic: inverse
+        topic: inverse_sources
     - id: Inverse
       module: timeflux_neurofeedback_inverse_gamepad.nodes.inverse
-      class: Inverse
+      class: ApplyInverseEpochs
       params:
         ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-        duration: 0.625
-        overlap: 0.525
+        duration: 1
+#        duration: 0.625
+        overlap: 0
+#        overlap: 0.525
         sfreq: 512
 #        to_screen: False
         to_screen: True
@@ -1042,6 +1045,8 @@ graphs:
         inverse_subject: 'fsaverage'
         inverse_snr: 1.0 #use smaller SNR for raw data
         inverse_method: 'dSPM' #MNE, dSPM, sLORETA, eLORETA
+#        inverse_method: 'MNE' #MNE, dSPM, sLORETA, eLORETA
+#        inverse_parc: 'Yeo2011_7Networks_N1000' #aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
         inverse_parc: 'HCPMMP1' #aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
         inverse_standard_montage: 'standard_1005' #EGI_256, GSN-HydroCel-128, GSN-HydroCel-129, GSN-HydroCel-256, GSN-HydroCel-257, GSN-HydroCel-32, GSN-HydroCel-64_1.0, GSN-HydroCel-65_1.0, artinis-brite23, artinis-octamon, biosemi128, biosemi16, biosemi160, biosemi256, biosemi32, biosemi64, brainproducts-RNP-BA-128, easycap-M1, easycap-M10, mgh60, mgh70, standard_1005, standard_1020, standard_alphabetic, standard_postfixed, standard_prefixed, standard_primed
         gamepad_inverse_peaks_labels0: null
