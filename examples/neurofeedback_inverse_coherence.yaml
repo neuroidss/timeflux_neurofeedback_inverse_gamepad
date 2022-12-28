@@ -29,13 +29,13 @@ graphs:
 #          - Fp1
 #        keys: [ Fp1, AF3 ]
 #        resync: False
-#    - id: replay
-#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-#      class: Replay
-#      params:
-#        filename: eeg/PAC_IMtest.bdf
-#        keys: [ eeg ]
-#        resync: False
+    - id: replay
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Replay
+      params:
+        filename: eeg/PAC_IMtest.bdf
+        keys: [ eeg ]
+        resync: False
 #        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #        board: freeeeg32
@@ -108,8 +108,10 @@ graphs:
     edges:
 #      - source: random
 #      - source: acquire
-#      - source: replay:eeg
-      - source: LSL
+      - source: replay:eeg
+#      - source: LSL
+        target: LocQuery
+      - source: LocQuery
 #        target: RenameColumns
 #      - source: RenameColumns
 #        target: LocQuery
@@ -191,6 +193,8 @@ graphs:
         target: monitor:gamepad_InputDevice
       - source: Subscriber:inverse_sources
         target: monitor:inverse_sources
+      - source: Subscriber:inverse_sources_coherence
+        target: monitor:inverse_sources_coherence
 #      - source: Subscriber:bands
 #        target: monitor:eeg_bands
 #      - source: Subscriber:iirfilter
@@ -234,6 +238,7 @@ graphs:
       params:
         topics:
         - coherence
+        - inverse_sources_coherence
     - id: gephistreamer
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gephistreamer
       class: GephiStreamer
@@ -241,13 +246,15 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [ C4-C3 ]
+        key: [ R_47m_ROI-rh__L_47m_ROI-lh ]
+#        key: [ C4__C3 ]
         axis: 1
     edges:
-      - source: Subscriber:coherence
-        target: LocQuery
+#      - source: Subscriber:coherence
+      - source: Subscriber:inverse_sources_coherence
+#        target: LocQuery
 #      - source: LocQuery
-#        target: gephistreamer
+        target: gephistreamer
     # Update file every second
 #    rate: 1
 #    rate: 64
@@ -314,11 +321,11 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [ C4-C3 ]
+        key: [ C4__C3 ]
         axis: 1
-    edges:
-      - source: Subscriber:coherence
-        target: LocQuery
+#    edges:
+#      - source: Subscriber:coherence
+#        target: LocQuery
 #      - source: LocQuery
 #        target: gephistreamer
     # Update file every second
@@ -960,8 +967,8 @@ graphs:
         duration: 0.625
         overlap: 0.525
         sfreq: 512
-        to_screen: False
-#        to_screen: True
+#        to_screen: False
+        to_screen: True
 #        vmin: 0
         vmin: 0.7
         con_name:  neurofeedback
@@ -1050,8 +1057,8 @@ graphs:
         inverse_snr: 1.0 #use smaller SNR for raw data
         inverse_method: 'dSPM' #MNE, dSPM, sLORETA, eLORETA
 #        inverse_method: 'MNE' #MNE, dSPM, sLORETA, eLORETA
-#        inverse_parc: 'Yeo2011_7Networks_N1000' #HCPMMP1, aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
-        inverse_parc: 'HCPMMP1' #HCPMMP1, aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
+        inverse_parc: 'Yeo2011_7Networks_N1000' #HCPMMP1, aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
+#        inverse_parc: 'HCPMMP1' #HCPMMP1, aparc.a2005s, aparc.a2009s, aparc, Yeo2011_7Networks_N1000, Yeo2011_17Networks_N1000
         inverse_standard_montage: 'standard_1005' #EGI_256, GSN-HydroCel-128, GSN-HydroCel-129, GSN-HydroCel-256, GSN-HydroCel-257, GSN-HydroCel-32, GSN-HydroCel-64_1.0, GSN-HydroCel-65_1.0, artinis-brite23, artinis-octamon, biosemi128, biosemi16, biosemi160, biosemi256, biosemi32, biosemi64, brainproducts-RNP-BA-128, easycap-M1, easycap-M10, mgh60, mgh70, standard_1005, standard_1020, standard_alphabetic, standard_postfixed, standard_prefixed, standard_primed
         gamepad_inverse_peaks_labels0: null
 #        gamepad_inverse_peaks_labels0: ["L_55b_ROI-lh","L_SFL_ROI-lh","L_a24_ROI-lh","L_p32_ROI-lh","L_10r_ROI-lh","L_47m_ROI-lh","L_8Av_ROI-lh","L_8Ad_ROI-lh","L_9m_ROI-lh","L_8BL_ROI-lh","L_9p_ROI-lh","L_10d_ROI-lh","L_44_ROI-lh","L_45_ROI-lh","L_47l_ROI-lh","L_IFSp_ROI-lh","L_9a_ROI-lh","L_10v_ROI-lh","L_47s_ROI-lh","L_25_ROI-lh","L_s32_ROI-lh"] #Left_DMN
@@ -1062,6 +1069,7 @@ graphs:
 #        gamepad_inverse_peaks_labels0: ["R_FEF_ROI-rh","R_55b_ROI-rh","R_SCEF_ROI-rh","R_6ma_ROI-rh","R_MIP_ROI-rh","R_a24pr_ROI-rh","R_p32pr_ROI-rh","R_6r_ROI-rh","R_IFSa_ROI-rh","R_46_ROI-rh","R_9-46d_ROI-rh","R_43_ROI-rh","R_PoI2_ROI-rh","R_FOP4_ROI-rh","R_FOP1_ROI-rh","R_FOP3_ROI-rh","R_FOP2_ROI-rh","R_PoI1_ROI-rh","R_FOP5_ROI-rh"] #Right_CON
         gamepad_inverse_peaks_labels1: null
         gamepad_inverse_peaks_label: null #aparc, BA1, BA2, BA3a, BA3b, BA4a, BA4p, BA6, BA44, BA45, cortex, entorhinal, Medial_wall, MT, V1, V2
+        replace_minus_to_underscore: True
     # Connect nodes
     edges:
 #      - source: acquire
@@ -1100,8 +1108,10 @@ graphs:
       class: SpectralConnectivityEpochs
       params:
 #        ch_names_pick: ['C3','C4','Cz']
-#        ch_names_pick: null
-        ch_names_pick: ["L_55b_ROI-lh","L_SFL_ROI-lh","L_a24_ROI-lh","L_p32_ROI-lh","L_10r_ROI-lh","L_47m_ROI-lh","L_8Av_ROI-lh","L_8Ad_ROI-lh","L_9m_ROI-lh","L_8BL_ROI-lh","L_9p_ROI-lh","L_10d_ROI-lh","L_44_ROI-lh","L_45_ROI-lh","L_47l_ROI-lh","L_IFSp_ROI-lh","L_9a_ROI-lh","L_10v_ROI-lh","L_47s_ROI-lh","L_25_ROI-lh","L_s32_ROI-lh"] #Left_DMN
+        ch_names_pick: null
+#        ch_names_pick: ["L_55b_ROI-lh","L_SFL_ROI-lh","L_a24_ROI-lh","L_p32_ROI-lh","L_10r_ROI-lh","L_47m_ROI-lh","L_8Av_ROI-lh","L_8Ad_ROI-lh","L_9m_ROI-lh","L_8BL_ROI-lh","L_9p_ROI-lh","L_10d_ROI-lh","L_44_ROI-lh","L_45_ROI-lh","L_47l_ROI-lh","L_IFSp_ROI-lh","L_9a_ROI-lh","L_10v_ROI-lh","L_47s_ROI-lh","L_25_ROI-lh","L_s32_ROI-lh"] #Left_DMN
+#        ch_names_pick: ["L_55b_ROI_lh","L_SFL_ROI_lh","L_a24_ROI_lh","L_p32_ROI_lh","L_10r_ROI_lh","L_47m_ROI_lh","L_8Av_ROI_lh","L_8Ad_ROI_lh","L_9m_ROI_lh","L_8BL_ROI_lh","L_9p_ROI_lh","L_10d_ROI_lh","L_44_ROI_lh","L_45_ROI_lh","L_47l_ROI_lh","L_IFSp_ROI_lh","L_9a_ROI_lh","L_10v_ROI_lh","L_47s_ROI_lh","L_25_ROI_lh","L_s32_ROI_lh", "R_SFL_ROI_rh","R_a24_ROI_rh","R_p32_ROI_rh","R_10r_ROI_rh","R_47m_ROI_rh","R_8Ad_ROI_rh","R_9m_ROI_rh","R_8BL_ROI_rh","R_9p_ROI_rh","R_10d_ROI_rh","R_45_ROI_rh","R_47l_ROI_rh","R_9a_ROI_rh","R_10v_ROI_rh","R_47s_ROI_rh","R_25_ROI_rh","R_s32_ROI_rh"] #Left_DMN #Right_DMN
+#        ch_names_pick: ["L_55b_ROI-lh","L_SFL_ROI-lh","L_a24_ROI-lh","L_p32_ROI-lh","L_10r_ROI-lh","L_47m_ROI-lh","L_8Av_ROI-lh","L_8Ad_ROI-lh","L_9m_ROI-lh","L_8BL_ROI-lh","L_9p_ROI-lh","L_10d_ROI-lh","L_44_ROI-lh","L_45_ROI-lh","L_47l_ROI-lh","L_IFSp_ROI-lh","L_9a_ROI-lh","L_10v_ROI-lh","L_47s_ROI-lh","L_25_ROI-lh","L_s32_ROI-lh", "R_SFL_ROI-rh","R_a24_ROI-rh","R_p32_ROI-rh","R_10r_ROI-rh","R_47m_ROI-rh","R_8Ad_ROI-rh","R_9m_ROI-rh","R_8BL_ROI-rh","R_9p_ROI-rh","R_10d_ROI-rh","R_45_ROI-rh","R_47l_ROI-rh","R_9a_ROI-rh","R_10v_ROI-rh","R_47s_ROI-rh","R_25_ROI-rh","R_s32_ROI-rh"] #Left_DMN #Right_DMN
 #        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
 #        epochs_con: 10
         epochs_con: 1
