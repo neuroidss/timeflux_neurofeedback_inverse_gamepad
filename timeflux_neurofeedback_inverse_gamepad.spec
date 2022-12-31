@@ -48,7 +48,9 @@ if sys.platform.startswith('win'):
     (site_packages+"/pooch", "pooch"),
     ]
 else:
-  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
+#  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
+  site_packages='/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages'
+  
   binaries = [
     (site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
     (site_packages+"/brainflow/lib/", "brainflow/lib"),
