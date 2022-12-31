@@ -63,6 +63,6 @@ jobs:
         prerelease: true
         title: "Development Build"
         files: |
-          LICENSE.txt
+          LICENSE
           dist/timeflux_neurofeedback_inverse_gamepad
           examples/*
