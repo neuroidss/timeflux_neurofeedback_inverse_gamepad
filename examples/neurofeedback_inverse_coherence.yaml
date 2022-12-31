@@ -246,6 +246,7 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
+#        key: [ R_47m_ROI_rh__L_47m_ROI_lh ]
         key: [ R_47m_ROI-rh__L_47m_ROI-lh ]
 #        key: [ C4__C3 ]
         axis: 1
@@ -967,8 +968,8 @@ graphs:
         duration: 0.625
         overlap: 0.525
         sfreq: 512
-#        to_screen: False
-        to_screen: True
+        to_screen: False
+#        to_screen: True
 #        vmin: 0
         vmin: 0.7
         con_name:  neurofeedback
@@ -1124,8 +1125,8 @@ graphs:
         duration: 0.625
         overlap: 0.525
         sfreq: 512
-#        to_screen: False
-        to_screen: True
+        to_screen: False
+#        to_screen: True
 #        vmin: 0
         vmin: 0.7
         con_name:  neurofeedback_inverse
