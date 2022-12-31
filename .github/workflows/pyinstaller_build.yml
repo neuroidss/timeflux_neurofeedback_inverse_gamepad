@@ -52,5 +52,7 @@ jobs:
         python setup.py bdist_wheel
         pip install dist/timeflux_neurofeedback_inverse_gamepad-0.1.dev1-py3-none-any.whl
         
+        find /opt/hostedtoolcache/Python/ -iname timeit.py
+        
         pip uninstall -y enum34
         pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
