@@ -49,4 +49,7 @@ jobs:
         sudo dpkg -i liblsl-1.16.0-jammy_amd64.deb
         mkdir /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib
         cp /usr/lib/liblsl.so /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib/liblsl.so
+        python setup.py bdist_wheel
+        pip install dist/timeflux_neurofeedback_inverse_gamepad-0.1.dev31-py3-none-any.whl
+        
         pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
