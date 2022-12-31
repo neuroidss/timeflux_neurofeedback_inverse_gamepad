@@ -1,4 +1,4 @@
-name: build
+name: pyinstaller_build
 
 on:
   push:
@@ -27,8 +27,6 @@ jobs:
         sudo apt install -y portaudio19-dev
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-        pip install pyinstaller
-        pip uninstall enum34
     - name: Test formatting
       run: |
         pip install black
@@ -44,4 +42,6 @@ jobs:
         pytest --cov=$PACKAGE
     - name: pyinstaller build
       run: |
+        pip install pyinstaller
+        pip uninstall -y enum34
         pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
