@@ -12,4 +12,4 @@
     zmq
     python-osc
     gephistreamer
-
+    dist/timeflux_neurofeedback_inverse_gamepad-0.0.0-py3-none-any.whl
