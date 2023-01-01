@@ -30,9 +30,8 @@ jobs:
         pypi_index_url: https://pypi.python.org/simple
         spec: "timeflux_neurofeedback_inverse_gamepad.spec"
         requirements: "requirements_windows.txt"
-#        entrypoint: /bin/echo
-#        args: The ${{ github.event_name }} event triggered this step.       
-        args: . https://pypi.python.org/ https://pypi.python.org/simple "timeflux_neurofeedback_inverse_gamepad.spec" "requirements_windows.txt"
+        entrypoint: ./entrypoint_win64.sh
+        args: . https://pypi.python.org/ https://pypi.python.org/simple "timeflux_neurofeedback_inverse_gamepad.spec" "requirements_windows.txt" "requirements_uninstall_windows.txt"
 #    - name: Set env
 #      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
     - uses: "marvinpinto/action-automatic-releases@latest"
