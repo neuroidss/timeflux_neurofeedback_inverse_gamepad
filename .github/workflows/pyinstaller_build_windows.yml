@@ -32,7 +32,8 @@ jobs:
       with:
 #        args: "python setup.py bdist_wheel"
 #        args: pwd
-        args: /home/runner/work/timeflux_neurofeedback_inverse_gamepad/timeflux_neurofeedback_inverse_gamepad/python_setup_py_bdist_wheel.sh
+#        args: /home/runner/work/timeflux_neurofeedback_inverse_gamepad/timeflux_neurofeedback_inverse_gamepad/python_setup_py_bdist_wheel.sh
+        args: cd /home/runner/work/timeflux_neurofeedback_inverse_gamepad/timeflux_neurofeedback_inverse_gamepad && python setup.py bdist_wheel
     - name: entrypoint_win64
       run: |
         stop
