@@ -30,11 +30,11 @@ jobs:
     - name: bdist_wheel
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
       with:
-        SRCDIR: /github/workspace
+#        SRCDIR: /github/workspace
 #        args: "python setup.py bdist_wheel"
 #        args: pwd
-#        args: /github/workspace/python_setup_py_bdist_wheel.sh
-        args: python setup.py bdist_wheel
+        args: /github/workspace/python_setup_py_bdist_wheel.sh
+#        args: python setup.py bdist_wheel
     - name: entrypoint_win64
       run: |
         stop
