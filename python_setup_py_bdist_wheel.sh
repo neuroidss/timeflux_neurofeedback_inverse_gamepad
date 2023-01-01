@@ -1,1 +1,2 @@
+cd /home/runner/work/timeflux_neurofeedback_inverse_gamepad/timeflux_neurofeedback_inverse_gamepad
 python setup.py bdist_wheel
