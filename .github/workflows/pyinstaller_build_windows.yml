@@ -24,10 +24,15 @@ jobs:
       run: |
         sudo chmod +x ./entrypoint_win64.sh
         cp ./setup_windows.cfg ./setup.cfg
+        sudo chmod +x ./python_setup_py_bdist_wheel.sh
     - name: bdist_wheel
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
       with:
-        args: "python setup.py bdist_wheel"
+#        args: "python setup.py bdist_wheel"
+        args: ./python_setup_py_bdist_wheel.sh
+    - name: entrypoint_win64
+      run: |
+        stop
     - name: Package Application
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
 #      uses: JackMcKew/pyinstaller-action-windows@main
