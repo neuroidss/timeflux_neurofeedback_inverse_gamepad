@@ -21,7 +21,8 @@ jobs:
 #      with:
 #        python-version: ${{ matrix.python-version }}
     - name: Package Application
-      uses: JackMcKew/pyinstaller-action-windows@main
+      uses: docker://neuroidss/pyinstaller:py3.9.13-ub22.04-win64
+#      uses: JackMcKew/pyinstaller-action-windows@main
       with:
         path: .
     - name: Set env
