@@ -1,0 +1,15 @@
+    timeflux>=0.5.3
+    pyedflib
+    mne
+    pyvjoy
+    gephistreamer
+    timeflux_ui
+    timeflux_dsp
+    timeflux_brainflow
+    mne_connectivity
+    pyformulas
+    brainflow
+    zmq
+    python-osc
+    gephistreamer
+
