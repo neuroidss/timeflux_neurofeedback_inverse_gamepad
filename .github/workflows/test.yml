@@ -58,12 +58,10 @@ jobs:
             OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
-      - name: Setup Python
-        uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.9.12'
+      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v3
+#        with:
+#          python-version: '3.9.12'
       - name: Install dependencies for ${{ matrix.os }}
         run: |
           python -m pip install --upgrade pip wheel setuptools
