@@ -20,6 +20,9 @@ jobs:
 #      uses: actions/setup-python@v1
 #      with:
 #        python-version: ${{ matrix.python-version }}
+    - name: entrypoint_win64
+      run: |
+        sudo chmod +x ./entrypoint_win64.sh
     - name: Package Application
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
 #      uses: JackMcKew/pyinstaller-action-windows@main
