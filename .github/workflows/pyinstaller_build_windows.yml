@@ -29,7 +29,7 @@ jobs:
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
       with:
 #        args: "python setup.py bdist_wheel"
-        args: ./python_setup_py_bdist_wheel.sh
+        args: cd .. && ./python_setup_py_bdist_wheel.sh
     - name: entrypoint_win64
       run: |
         stop
