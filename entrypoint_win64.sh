@@ -45,7 +45,7 @@ if [ -f $5 ]; then
     pip install -r $5
 fi # [ -f $5 ]
 if [ -f $6 ]; then
-    pip uninstall -r $6
+    pip uninstall -y -r $6
 fi # [ -f $6 ]
 
 
