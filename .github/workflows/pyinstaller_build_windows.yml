@@ -1,10 +1,10 @@
 name: pyinstaller_build
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
 
 jobs:
   build-ubuntu:
@@ -77,12 +77,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+#      uses: actions/setup-python@v1
       uses: docker://neuroidss/pyinstaller:py3.9.13-ub22.04-win64
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Set env
-      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
+#      with:
+#        python-version: ${{ matrix.python-version }}
+#    - name: Set env
+#      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
 #        sudo apt install -y portaudio19-dev
