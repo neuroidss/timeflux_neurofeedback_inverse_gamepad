@@ -7,6 +7,66 @@ on:
     branches: [ master ]
 
 jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Set env
+      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
+    - name: Install dependencies
+      run: |
+        sudo apt install -y portaudio19-dev
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    - name: Test formatting
+      run: |
+        pip install black
+        black --check $PACKAGE
+    - name: Test documentation
+      run: |
+        cd doc
+        make html
+        cd ..
+    - name: Test code
+      run: |
+        pip install pytest pytest-cov
+        pytest --cov=$PACKAGE
+    - name: pyinstaller build
+      run: |
+        pip install pyinstaller
+        
+        wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-jammy_amd64.deb
+        sudo dpkg -i liblsl-1.16.0-jammy_amd64.deb
+        mkdir /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib
+        cp /usr/lib/liblsl.so /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib/liblsl.so
+        pip install wheel
+        python setup.py bdist_wheel
+        pip install dist/timeflux_neurofeedback_inverse_gamepad-0.1.dev1-py3-none-any.whl
+        
+        #find /opt/hostedtoolcache/Python/ -iname timeit.py
+        
+        pip uninstall -y enum34
+        pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          LICENSE
+          dist/timeflux_neurofeedback_inverse_gamepad
+          examples/*
+          
   build-windows:
 
     runs-on: windows-latest
@@ -15,40 +75,40 @@ jobs:
         python-version: [3.9]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v1
+      uses: docker://neuroidss/pyinstaller:py3.9.13-ub22.04-win64
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Set env
+      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
 #        sudo apt install -y portaudio19-dev
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-#    - name: Test formatting
-#      run: |
-#        pip install black
-#        black --check $PACKAGE
+    - name: Test formatting
+      run: |
+        pip install black
+        black --check $PACKAGE
     - name: Test documentation
       run: |
         cd doc
         make html
         cd ..
-#    - name: Test code
-#      run: |
-#        pip install pytest pytest-cov
-#        pytest --cov=$PACKAGE
+    - name: Test code
+      run: |
+        pip install pytest pytest-cov
+        pytest --cov=$PACKAGE
     - name: pyinstaller build
       run: |
         pip install pyinstaller
         
-#        wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-Win_amd64.zip
-        Import-Module bitstransfer
-        start-bitstransfer -source https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-Win_amd64.zip -destination liblsl-1.16.0-Win_amd64.zip
-        Expand-Archive liblsl-1.16.0-Win_amd64.zip -DestinationPath liblsl-1.16.0-Win_amd64
-#        unzip liblsl-1.16.0-Win_amd64.zip
+        wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-Win_amd64.zip
+        unzip liblsl-1.16.0-Win_amd64.zip
         mkdir /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib
-        cp liblsl-1.16.0-Win_amd64/bin/liblsl.dll /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib/liblsl.dll
+        cp /usr/lib/liblsl.so /opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/pylsl/lib/liblsl.so
         pip install wheel
         python setup.py bdist_wheel
         pip install dist/timeflux_neurofeedback_inverse_gamepad-0.1.dev1-py3-none-any.whl
