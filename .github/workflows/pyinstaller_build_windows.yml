@@ -35,9 +35,9 @@ jobs:
 #        args: pwd
         args: /github/workspace/python_setup_py_bdist_wheel.sh
 #        args: python setup.py bdist_wheel
-    - name: entrypoint_win64
-      run: |
-        stop
+#    - name: entrypoint_win64
+#      run: |
+#        stop
     - name: Package Application
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
 #      uses: JackMcKew/pyinstaller-action-windows@main
