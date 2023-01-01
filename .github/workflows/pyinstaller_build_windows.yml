@@ -29,8 +29,8 @@ jobs:
       uses: docker://neuroidss/pyinstaller:amd64-py3.9.13-ub22.04-win64
       with:
 #        args: "python setup.py bdist_wheel"
-        args: pwd
-#        args: ../python_setup_py_bdist_wheel.sh
+#        args: pwd
+        args: /home/runner/work/timeflux_neurofeedback_inverse_gamepad/timeflux_neurofeedback_inverse_gamepad/python_setup_py_bdist_wheel.sh
     - name: entrypoint_win64
       run: |
         stop
