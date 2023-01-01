@@ -2,7 +2,7 @@
 
 import sys
 if sys.platform.startswith('win'):
-  site_packages='./env_timeflux_coherence_circle/Lib/site-packages'
+  site_packages='C:/Python39/lib/site-packages/Lib/site-packages'
   binaries = [
 #	(site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
 #    (site_packages+"/brainflow/lib/", "brainflow/lib"),
