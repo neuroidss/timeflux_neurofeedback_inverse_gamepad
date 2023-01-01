@@ -58,7 +58,8 @@ jobs:
             OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
-      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
