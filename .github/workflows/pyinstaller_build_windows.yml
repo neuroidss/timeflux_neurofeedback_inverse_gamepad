@@ -16,10 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+#    - name: Set up Python ${{ matrix.python-version }}
+#      uses: actions/setup-python@v1
+#      with:
+#        python-version: ${{ matrix.python-version }}
+    - name: Package Application
+      uses: JackMcKew/pyinstaller-action-windows@main
       with:
-        python-version: ${{ matrix.python-version }}
+        path: .
     - name: Set env
       run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
     - name: Install dependencies
