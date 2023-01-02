@@ -107,15 +107,15 @@ graphs:
     # Connect nodes
     edges:
 #      - source: random
-      - source: acquire
+#      - source: acquire
 #      - source: LSL
 #        target: RenameColumns
 #      - source: RenameColumns
-#        target: LocQuery
-#      - source: LocQuery
+      - source: replay:eeg
+        target: LocQuery
+      - source: LocQuery
 #        target: dejitter
 #      - source: dejitter
-#      - source: replay:eeg
 #      - source: LSL
         target: PublisherRaw
     # Run this graph 25 times per second
@@ -239,9 +239,9 @@ graphs:
         axis: 1
     edges:
       - source: Subscriber:coherence
-        target: LocQuery
+#        target: LocQuery
 #      - source: LocQuery
-#        target: gephistreamer
+        target: gephistreamer
     # Update file every second
 #    rate: 1
 #    rate: 64
