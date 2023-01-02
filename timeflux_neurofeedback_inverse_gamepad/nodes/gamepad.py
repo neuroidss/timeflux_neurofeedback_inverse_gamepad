@@ -25,7 +25,7 @@ class InputDevice(Node):
         """
         #        self._value = value
         import sys
-        if sys.platform.startswith("win"):
+        if not sys.platform.startswith("win"):
 
             import evdev
             from evdev import InputDevice, categorize, ecodes
@@ -48,7 +48,7 @@ class InputDevice(Node):
 
     def update(self):
         import sys
-        if sys.platform.startswith("win"):
+        if not sys.platform.startswith("win"):
             import evdev
             from evdev import InputDevice, _input, categorize, ecodes
             import timeflux.helpers.clock as clock
