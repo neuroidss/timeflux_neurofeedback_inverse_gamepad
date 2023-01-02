@@ -24,6 +24,7 @@ class InputDevice(Node):
             value (int): The value to add to each cell.
         """
         #        self._value = value
+        import sys
         if sys.platform.startswith("win"):
 
             import evdev
@@ -46,6 +47,7 @@ class InputDevice(Node):
     #        for capabilities_idx in self._evdev_device_capabilities(ecodes.EV_KEY):
 
     def update(self):
+        import sys
         if sys.platform.startswith("win"):
             import evdev
             from evdev import InputDevice, _input, categorize, ecodes
@@ -114,7 +116,7 @@ class OutputDevice(Node):
             value (int): The value to add to each cell.
         """
         #        self._value = value
-
+        import sys
         if sys.platform.startswith("win"):
             import pyvjoy
             import numpy as np
@@ -184,6 +186,7 @@ class OutputDevice(Node):
     #        print('uinput init ok')
 
     def update(self):
+        import sys
         if sys.platform.startswith("win"):
             import pyvjoy
             import numpy as np
