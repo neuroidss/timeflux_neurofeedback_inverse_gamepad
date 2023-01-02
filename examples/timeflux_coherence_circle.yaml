@@ -29,13 +29,13 @@ graphs:
 #          - Fp1
 #        keys: [ Fp1, AF3 ]
 #        resync: False
-#    - id: replay
-#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-#      class: Replay
-#      params:
-#        filename: eeg/PAC_IMtest.bdf
-#        keys: [ eeg ]
-#        resync: False
+    - id: replay
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Replay
+      params:
+        filename: eeg/PAC_IMtest.bdf
+        keys: [ eeg ]
+        resync: False
 #        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #        board: freeeeg32
@@ -44,17 +44,17 @@ graphs:
 #        serial_port: /dev/cu.SLAB_USBtoUART # Optical
 #        serial_port: /dev/ttyACM0
 
-    - id: acquire
-      module: timeflux_brainflow.nodes.driver
-      class: BrainFlow
-      params:
-        board: freeeeg32
-        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#    - id: acquire
+#      module: timeflux_brainflow.nodes.driver
+#      class: BrainFlow
+#      params:
+#        board: freeeeg32
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
         #serial_port: /dev/cu.usbmodem3067384E33301 # USB
 #        serial_port: /dev/cu.SLAB_USBtoUART # Optical
 #        serial_port: /dev/ttyS20
-        serial_port: /dev/ttyACM0
-        debug: true
+#        serial_port: /dev/ttyACM0
+#        debug: true
         
     - id: dejitter
       module: timeflux.nodes.dejitter
@@ -308,7 +308,7 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [ C4-C3 ]
+        key: [ C4__C3 ]
         axis: 1
     edges:
       - source: Subscriber:coherence
