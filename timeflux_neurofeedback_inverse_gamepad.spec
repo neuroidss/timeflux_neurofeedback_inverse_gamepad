@@ -2,7 +2,7 @@
 
 import sys
 if sys.platform.startswith('win'):
-  site_packages='C:/Python39/lib/site-packages'
+  site_packages='C:/Python39/Lib/site-packages'
   binaries = [
 #	(site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
 #    (site_packages+"/brainflow/lib/", "brainflow/lib"),
@@ -37,6 +37,7 @@ if sys.platform.startswith('win'):
     (site_packages+"/frozenlist", "frozenlist"),
     (site_packages+"/mne_connectivity", "mne_connectivity"),
 #    ("/usr/lib/python3.9/timeit.py", "timeit"),
+    ("C:/Python39/Lib/timeit.py", "timeit"),
     (site_packages+"/tqdm", "tqdm"),
     (site_packages+"/pyformulas", "pyformulas"),
     (site_packages+"/cv2", "cv2"),

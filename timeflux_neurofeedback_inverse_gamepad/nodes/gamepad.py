@@ -24,6 +24,8 @@ class InputDevice(Node):
             value (int): The value to add to each cell.
         """
         #        self._value = value
+      if sys.platform.startswith('win'):
+        
         import evdev
         from evdev import InputDevice, categorize, ecodes
 
@@ -44,6 +46,7 @@ class InputDevice(Node):
     #        for capabilities_idx in self._evdev_device_capabilities(ecodes.EV_KEY):
 
     def update(self):
+      if sys.platform.startswith('win'):
         import evdev
         from evdev import InputDevice, _input, categorize, ecodes
         import timeflux.helpers.clock as clock
@@ -88,7 +91,7 @@ class InputDevice(Node):
         self.o.data = data
 
 
-class UInput(Node):
+class OutputDevice(Node):
 
     """Adds ``value`` to each cell of the input.
 
@@ -109,6 +112,22 @@ class UInput(Node):
             value (int): The value to add to each cell.
         """
         #        self._value = value
+
+      if sys.platform.startswith('win'):
+        import pyvjoy
+        import numpy as np
+
+        self._vjoy_device = pyvjoy.VJoyDevice(1)
+
+    #        self._vjoy.data.lButtons = 0
+    #        self._vjoy.data.wAxisXRot = round(0x8000 / 2)
+    #        self._vjoy.data.wAxisYRot = round(0x8000 / 2)
+    #        self._vjoy.data.wAxisZRot = round(0x8000 / 2)
+    #        self._vjoy.data.wAxisX = round(0x8000 / 2)
+    #        self._vjoy.data.wAxisY = round(0x8000 / 2)
+    #        self._vjoy.data.wAxisZ = round(0x8000 / 2)
+    #        self._vjoy.update()
+      else: # linux
         import uinput
 
         #        print('uinput init')
@@ -163,6 +182,52 @@ class UInput(Node):
     #        print('uinput init ok')
 
     def update(self):
+      if sys.platform.startswith('win'):
+        import pyvjoy
+        import numpy as np
+
+        if self.ports is not None:
+            #          bdf.writeSamples(bufs_hstack_cut)
+            for name, port in self.ports.items():
+                #                if not name.startswith("i"):
+                #                    continue
+                #                key = "/" + name[2:].replace("_", "/")
+                if port.data is not None:
+                    for (colname, colval) in port.data.items():
+                        #                  print(colname, colval.values)
+                        #                  if np.max(colval.values)-np.min(colval.values) == 0:
+                        #                    val = np.nan
+                        #                  else:
+                        #                    val = (colval.values[len(colval.values)-1]-np.min(colval.values))/(np.max(colval.values)-np.min(colval.values))
+                        val = colval.values[len(colval.values) - 1]
+                        if not np.isnan(val):
+                            if colname == "XR":
+                                self._vjoy_device.data.wAxisXRot = round(0x8000 * val)
+                            if colname == "YR":
+                                self._vjoy_device.data.wAxisYRot = round(0x8000 * val)
+                            if colname == "ZR":
+                                self._vjoy_device.data.wAxisZRot = round(0x8000 * val)
+                            if colname == "X":
+                                self._vjoy_device.data.wAxisX = round(0x8000 * val)
+                            if colname == "Y":
+                                self._vjoy_device.data.wAxisY = round(0x8000 * val)
+                            if colname == "Z":
+                                self._vjoy_device.data.wAxisZ = round(0x8000 * val)
+                            if (
+                                (colname.find("B") == 0)
+                                and (int(colname[1:]) >= 1)
+                                and (int(colname[1:]) <= 8)
+                            ):
+                                if round(val) > 0:
+                                    self._vjoy_device.data.lButtons |= 1 << (
+                                        int(colname[1:]) - 1
+                                    )
+                                else:
+                                    self._vjoy_device.data.lButtons &= ~(
+                                        1 << (int(colname[1:]) - 1)
+                                    )
+                        self._vjoy_device.update()      
+      else: # linux
         import uinput
         import numpy as np
 
@@ -259,62 +324,6 @@ class VJoy(Node):
             value (int): The value to add to each cell.
         """
         #        self._value = value
-        import pyvjoy
-        import numpy as np
-
-        self._vjoy_device = pyvjoy.VJoyDevice(1)
-
-    #        self._vjoy.data.lButtons = 0
-    #        self._vjoy.data.wAxisXRot = round(0x8000 / 2)
-    #        self._vjoy.data.wAxisYRot = round(0x8000 / 2)
-    #        self._vjoy.data.wAxisZRot = round(0x8000 / 2)
-    #        self._vjoy.data.wAxisX = round(0x8000 / 2)
-    #        self._vjoy.data.wAxisY = round(0x8000 / 2)
-    #        self._vjoy.data.wAxisZ = round(0x8000 / 2)
-    #        self._vjoy.update()
 
     def update(self):
-        import pyvjoy
-        import numpy as np
 
-        if self.ports is not None:
-            #          bdf.writeSamples(bufs_hstack_cut)
-            for name, port in self.ports.items():
-                #                if not name.startswith("i"):
-                #                    continue
-                #                key = "/" + name[2:].replace("_", "/")
-                if port.data is not None:
-                    for (colname, colval) in port.data.items():
-                        #                  print(colname, colval.values)
-                        #                  if np.max(colval.values)-np.min(colval.values) == 0:
-                        #                    val = np.nan
-                        #                  else:
-                        #                    val = (colval.values[len(colval.values)-1]-np.min(colval.values))/(np.max(colval.values)-np.min(colval.values))
-                        val = colval.values[len(colval.values) - 1]
-                        if not np.isnan(val):
-                            if colname == "XR":
-                                self._vjoy_device.data.wAxisXRot = round(0x8000 * val)
-                            if colname == "YR":
-                                self._vjoy_device.data.wAxisYRot = round(0x8000 * val)
-                            if colname == "ZR":
-                                self._vjoy_device.data.wAxisZRot = round(0x8000 * val)
-                            if colname == "X":
-                                self._vjoy_device.data.wAxisX = round(0x8000 * val)
-                            if colname == "Y":
-                                self._vjoy_device.data.wAxisY = round(0x8000 * val)
-                            if colname == "Z":
-                                self._vjoy_device.data.wAxisZ = round(0x8000 * val)
-                            if (
-                                (colname.find("B") == 0)
-                                and (int(colname[1:]) >= 1)
-                                and (int(colname[1:]) <= 8)
-                            ):
-                                if round(val) > 0:
-                                    self._vjoy_device.data.lButtons |= 1 << (
-                                        int(colname[1:]) - 1
-                                    )
-                                else:
-                                    self._vjoy_device.data.lButtons &= ~(
-                                        1 << (int(colname[1:]) - 1)
-                                    )
-                        self._vjoy_device.update()

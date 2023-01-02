@@ -208,8 +208,7 @@ graphs:
         - gamepad
     - id: Gamepad
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-#      class: VJoy
-      class: UInput
+      class: OutputDevice
     edges:
       - source: Subscriber:gamepad
         target: Gamepad
@@ -236,7 +235,7 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [ C4-C3 ]
+        key: [ C4__C3 ]
         axis: 1
     edges:
       - source: Subscriber:coherence
