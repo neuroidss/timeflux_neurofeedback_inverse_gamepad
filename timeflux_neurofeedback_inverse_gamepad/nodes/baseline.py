@@ -37,6 +37,8 @@ class Baseline(Node):
         if self.i.data is not None:
             for (colname, colval) in self.i.data.items():
                 #                  print('colname, colval.values:',colname, colval.values)
+                #                print(colval.values)
+                #                print(np.max(colval.values),np.min(colval.values))
                 if np.max(colval.values) - np.min(colval.values) == 0:
                     val = np.nan
                 else:
