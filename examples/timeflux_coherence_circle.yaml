@@ -76,14 +76,14 @@ graphs:
 
     # Receive EEG signal from the network
 #    - id: acquire
-    - id: LSL
-      module: timeflux.nodes.lsl
-      class: Receive
-      params:
-        prop: name
-        value: openvibeSignal
-        unit: s
-        sync: network
+#    - id: LSL
+#      module: timeflux.nodes.lsl
+#      class: Receive
+#      params:
+#        prop: name
+#        value: openvibeSignal
+#        unit: s
+#        sync: network
 #        prop: name
 #        value: EEG
 #        prop: type
@@ -92,7 +92,7 @@ graphs:
 #        sync: None
 #        name: EEG
 #        name: signal
-        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
     - id: RenameColumns
       module: timeflux.nodes.axis
       class: RenameColumns
@@ -125,20 +125,20 @@ graphs:
 #    rate: 64
 #    rate: 25
 
-  - id: AcquireGamepad
-    nodes:
-    - id: acquireInputDevice
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-      class: InputDevice
-    - id: PublisherInputDevice
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: InputDevice
-    edges:
-      - source: acquireInputDevice
-        target: PublisherInputDevice
-    rate: 10
+#  - id: AcquireGamepad
+#    nodes:
+#    - id: acquireInputDevice
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: InputDevice
+#    - id: PublisherInputDevice
+#      module: timeflux.nodes.zmq
+#      class: Pub
+#      params:
+#        topic: InputDevice
+#    edges:
+#      - source: acquireInputDevice
+#        target: PublisherInputDevice
+#    rate: 10
 
   - id: StreamToBrowser
     nodes:
@@ -197,27 +197,27 @@ graphs:
 #    rate: 3
     rate: 10
 
-  - id: StreamToGamepad
-    nodes:
-    # Receive data streams from the broker
-    - id: Subscriber
-      module: timeflux.nodes.zmq
-      class: Sub
-      params:
-        topics:
-        - gamepad
-    - id: Gamepad
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
-      class: OutputDevice
-    edges:
-      - source: Subscriber:gamepad
-        target: Gamepad
+#  - id: StreamToGamepad
+#    nodes:
+#    # Receive data streams from the broker
+#    - id: Subscriber
+#      module: timeflux.nodes.zmq
+#      class: Sub
+#      params:
+#        topics:
+#        - gamepad
+#    - id: Gamepad
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: OutputDevice
+#    edges:
+#      - source: Subscriber:gamepad
+#        target: Gamepad
     # Update file every second
 #    rate: 1
 #    rate: 64
 #    rate: 512
 #    rate: 3
-    rate: 10
+#    rate: 10
 
   - id: StreamToGephi
     nodes:

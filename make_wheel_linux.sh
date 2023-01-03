@@ -1,0 +1,2 @@
+docker rm neuroidsspyinstalleramd64py3913ub2204win64_c29f0d
+/usr/bin/docker run --name neuroidsspyinstalleramd64py3913ub2204win64_c29f0d --label 290506 --workdir /github/workspace -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/dmitryneuro/git.neuroidss/timeflux_neurofeedback_inverse_gamepad":"/github/workspace" neuroidss/pyinstaller:amd64-py3.9.13-ub22.04 '/github/workspace/python_setup_py_bdist_wheel.sh'
