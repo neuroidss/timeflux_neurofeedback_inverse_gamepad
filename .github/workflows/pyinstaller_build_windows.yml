@@ -65,5 +65,5 @@ jobs:
         files: |
           LICENSE
           dist/windows/timeflux_neurofeedback_inverse_gamepad.zip
-#          dist/windows/timeflux_neurofeedback_inverse_gamepad.exe
+          #dist/windows/timeflux_neurofeedback_inverse_gamepad.exe
           examples/*
