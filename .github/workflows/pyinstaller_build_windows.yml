@@ -54,7 +54,7 @@ jobs:
 #      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
     - name: zip timeflux_neurofeedback_inverse_gamepad
       run: |
-        apt install -y zip unzip
+        sudo apt install -y zip unzip
         zip -r dist/windows/timeflux_neurofeedback_inverse_gamepad.zip dist/windows/timeflux_neurofeedback_inverse_gamepad
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
