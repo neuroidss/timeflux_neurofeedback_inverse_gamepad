@@ -52,7 +52,7 @@ jobs:
         args: . https://pypi.python.org/ https://pypi.python.org/simple "timeflux_neurofeedback_inverse_gamepad.spec" "requirements_windows.txt" "requirements_uninstall_windows.txt"
 #    - name: Set env
 #      run: echo "PACKAGE=$(basename `git config --get remote.origin.url` | sed -e 's/\.git$//')" >> $GITHUB_ENV
-    - name: zip
+    - name: zip timeflux_neurofeedback_inverse_gamepad
       run: |
         apt install -y zip unzip
         zip -r dist/windows/timeflux_neurofeedback_inverse_gamepad.zip dist/windows/timeflux_neurofeedback_inverse_gamepad
