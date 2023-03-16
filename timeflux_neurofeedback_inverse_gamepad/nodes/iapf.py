@@ -197,16 +197,28 @@ class IAPF(Node):
 
             exps = fg.get_params('aperiodic_params', 'exponent')
 #            spectra = fg.get_fooof(np.argmax(exps)).power_spectrum
-            band_power = self.check_nans(get_band_peak_fg(fg, freq_range)[:, 1])
+            band_power = self.check_nans(get_band_peak_fg(fg, freq_range)[:, 1],nan_policy=self._nan_policy)
             spectra = fg.get_fooof(np.argmax(band_power)).power_spectrum
+
+            # Extract alpha peaks
+#            alphas = get_band_peak_fg(fg, freq_range)
+
+            # Extract the power values from the detected peaks
+#            alpha_pw = alphas[:, 1]
+
             freqs = fg.freqs
 #            print(fg.freqs)
-            print(alphas)
-            print(alpha_pw)
+            alpha_peaks = self.check_nans(alphas[:,0],nan_policy=self._nan_policy)
+            alpha_pws = self.check_nans(alphas[:,1],nan_policy=self._nan_policy)
+#            print(alpha_peaks)
+#            print(alpha_pws)
+#            print(alphas)
+#            print(alpha_pw)
 #            print(freqs.shape)
 #            print(spectra.shape)
 #            print(freqs)
 #            print(spectra)
+#            print(np.argmax(band_power))
 
             data = pd.DataFrame(
                 spectra,
@@ -237,8 +249,10 @@ class IAPF(Node):
 #                       subplot_kw=dict(polar=True))
 
                 plt.ylim([-2, 2])
+                plt.title(self._ch_names_pick[np.argmax(band_power)])
                 ax.plot(freqs,spectra)
-                ax.plot(alphas[0][0],alphas[0][1], marker="o", ls="", ms=3)
+                ax.plot(alphas[np.argmax(band_power)][0],alphas[np.argmax(band_power)][1], marker="o", ls="", ms=3)
+#                ax.plot(alphas[0][0],alphas[0][1], marker="o", ls="", ms=3)
 #                fg.plot(fig)
 #                plot_hist(fg.get_params('peak_params', 0)[:, 0], 'Center Frequency',
 #                  'Peaks - Center Frequencies', x_lims=fg.freq_range, ax=ax)
