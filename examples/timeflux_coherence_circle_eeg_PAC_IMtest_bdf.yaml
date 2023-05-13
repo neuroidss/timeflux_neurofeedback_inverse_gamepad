@@ -265,8 +265,8 @@ graphs:
       params:
 #        length: 1.0
         length: 512
-#        step: 512
-        step: 1
+#        step: 1.0
+        step: 512
 #        index: time
         index: sample
 #        epochs: true
