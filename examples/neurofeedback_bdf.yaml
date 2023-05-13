@@ -1,0 +1,157 @@
+graphs:
+
+  # The publish/subscribe broker graph
+  - id: PubSubBroker
+    nodes:
+    # Allow communication between graphs
+    - id: Broker
+      module: timeflux.nodes.zmq
+      class: Broker
+#      class: BrokerLVC
+    rate: 25
+
+  # The main processing graph
+  - id: AcquireEEG
+    nodes:
+#    - id: random
+#      module: timeflux.nodes.random
+#      class: Random
+#      params:
+#        columns: 2
+#        seed: 1
+#    - id: acquire0
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.hdf5
+#      module: timeflux.nodes.hdf5
+#      class: Replay
+#      params:
+#        filename: /tmp/20221217-195349.hdf5
+#        keys:
+#          - /eeg/raw
+#          - Fp1
+#        keys: [ Fp1, AF3 ]
+#        resync: False
+    - id: replay
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Replay
+      params:
+        filename: eeg/PAC_IMtest.bdf
+        keys: [ eeg ]
+        resync: False
+    # Publish the raw EEG signal
+    - id: PublisherRaw
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: raw
+    # Connect nodes
+    edges:
+#      - source: random
+#      - source: acquire
+      - source: replay:eeg
+#      - source: LSL
+#        target: LocQuery
+#      - source: LocQuery
+#        target: RenameColumns
+#      - source: RenameColumns
+#        target: LocQuery
+#      - source: LocQuery
+#        target: dejitter
+#      - source: dejitter
+#      - source: replay:eeg
+#      - source: LSL
+        target: PublisherRaw
+    # Run this graph 25 times per second
+#    rate: 3
+#    rate: 10
+    rate: 25
+#    rate: 64
+#    rate: 25
+
+  - id: StreamToBrowser
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+#        - bdf
+        - raw
+        - iapf
+    - id: monitor
+      module: timeflux_ui.nodes.ui
+      class: UI
+    edges:
+#      - source: Subscriber:iapf
+#        target: monitor:eeg_iapf
+
+#      - source: Subscriber:bdf
+#        target: monitor:eeg_bdf
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+      - source: Subscriber:raw
+        target: monitor:eeg_raw
+#      - source: Subscriber:bands
+#        target: monitor:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: monitor:eeg_iirfilter
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 25
+
+  # The recorder graph
+  - id: StreamToBDF
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - raw
+    - id: WriteBDFWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+#        length: 1.0
+        length: 512
+#        step: 1.0
+#        step: 1
+        step: 512
+#        index: time
+        index: sample
+#        epochs: true
+    # Record to file
+    - id: Recorder
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Save
+      params:
+        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+        sample_rate: 512
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
+    edges:
+      - source: Subscriber:raw
+        target: dejitter
+      - source: dejitter
+        target: WriteBDFWindow
+      - source: WriteBDFWindow
+        target: Recorder
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 25
+
