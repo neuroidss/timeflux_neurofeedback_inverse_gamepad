@@ -265,7 +265,7 @@ graphs:
       params:
 #        length: 1.0
         length: 512
-#        step: 1.0
+#        step: 512
         step: 1
 #        index: time
         index: sample
