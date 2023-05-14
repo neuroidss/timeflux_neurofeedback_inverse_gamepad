@@ -39,7 +39,7 @@ jobs:
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
-        skipIfReleaseExists: true
+        allowUpdates: true
   
   build:
     name: Build Executables
