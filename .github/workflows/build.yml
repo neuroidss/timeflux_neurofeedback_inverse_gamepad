@@ -73,7 +73,7 @@ jobs:
     - id: step_upload_url
 #      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 #      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
-      run: echo "UPLOAD_URL_BASE64=${{ UPLOAD_URL_BASE64 }}" >> "$GITHUB_OUTPUT"
+      run: echo "UPLOAD_URL_BASE64=${ UPLOAD_URL_BASE64 }" >> "$GITHUB_OUTPUT"
 #      run: |
 #          UPLOAD_URL=$(cat << EOF
 #          ${{ steps.create_release.outputs.upload_url }}
