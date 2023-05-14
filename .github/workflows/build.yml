@@ -36,7 +36,7 @@ jobs:
   
   build:
     name: Build Executables
-    needs: create_release
+#    needs: create_release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
