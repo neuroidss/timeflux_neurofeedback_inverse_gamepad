@@ -24,7 +24,8 @@ jobs:
     steps:
     - name: Create Release For Tag
       id: create_release
-      uses: actions/create-release@v1.12.0
+#      uses: actions/create-release@v1
+      uses: ncipollo/release-action@v1.12.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -113,7 +114,7 @@ jobs:
 #          name: ${{runner.os}}
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
       - name: Upload release assets
-        uses: actions/upload-release-asset@v1.12.0
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
