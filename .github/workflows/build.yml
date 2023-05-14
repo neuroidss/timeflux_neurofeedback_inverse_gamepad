@@ -15,24 +15,24 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
 
-  create_release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: changelog
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-    - name: Create Release For Tag
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: ${{ needs.changelog.outputs.changelog }}
-        draft: false
-        prerelease: ${{ contains(github.ref, 'beta') }}
+#  create_release:
+#    name: Create Release
+#    runs-on: ubuntu-latest
+#    needs: changelog
+#    outputs:
+#      upload_url: ${{ steps.create_release.outputs.upload_url }}
+#    steps:
+#    - name: Create Release For Tag
+#      id: create_release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: ${{ github.ref }}
+#        release_name: Release ${{ github.ref }}
+#        body: ${{ needs.changelog.outputs.changelog }}
+#        draft: false
+#        prerelease: ${{ contains(github.ref, 'beta') }}
   
   build:
     name: Build Executables
