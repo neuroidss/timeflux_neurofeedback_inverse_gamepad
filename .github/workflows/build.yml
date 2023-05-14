@@ -44,7 +44,7 @@ jobs:
         include:
           - os: ubuntu-latest
             PRE_BUILD_CMD: >
-              apt install -y portaudio19-dev &&
+              sudo apt install -y portaudio19-dev &&
               wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-jammy_amd64.deb &&
               dpkg -i liblsl-1.16.0-jammy_amd64.deb &&
               pip install wheel &&
@@ -60,28 +60,28 @@ jobs:
             ASSET_MIME: application/zip
 #            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
 #            ASSET_MIME: application/octet-stream
-          - os: macos-latest
-            PRE_BUILD_CMD: >
-              pip install wheel &&
-              python setup.py bdist_wheel &&
-              pip install -r requirements_macos.txt &&
-              pip uninstall -r -y requirements_uninstall_macos.txt
-            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
-            POST_BUILD_CMD: >
-              cd dist/ &&
-              ls -Rls &&
-              zip -r9 timeflux_neurofeedback_inverse_gamepad timeflux_neurofeedback_inverse_gamepad
-            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.zip
-            ASSET_MIME: application/zip
-          - os: windows-latest
-            PRE_BUILD_CMD: >
-              pip install wheel &&
-              python setup.py bdist_wheel &&
-              pip install -r requirements_windows.txt &&
-              pip uninstall -r -y requirements_uninstall_windows.txt
-            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
-            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
-            ASSET_MIME: application/vnd.microsoft.portable-executable
+#          - os: macos-latest
+#            PRE_BUILD_CMD: >
+#              pip install wheel &&
+#              python setup.py bdist_wheel &&
+#              pip install -r requirements_macos.txt &&
+#              pip uninstall -r -y requirements_uninstall_macos.txt
+#            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
+#            POST_BUILD_CMD: >
+#              cd dist/ &&
+#              ls -Rls &&
+#              zip -r9 timeflux_neurofeedback_inverse_gamepad timeflux_neurofeedback_inverse_gamepad
+#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.zip
+#            ASSET_MIME: application/zip
+#          - os: windows-latest
+#            PRE_BUILD_CMD: >
+#              pip install wheel &&
+#              python setup.py bdist_wheel &&
+#              pip install -r requirements_windows.txt &&
+#              pip uninstall -r -y requirements_uninstall_windows.txt
+#            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
+#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
+#            ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
