@@ -66,6 +66,8 @@ jobs:
               python setup.py bdist_wheel &&
               pip install -r requirements_linux.txt &&
               pip uninstall -y -r requirements_uninstall_linux.txt
+              pip install pytest pytest-cov
+              pytest --cov=timeflux_neurofeedback_inverse_gamepad
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             POST_BUILD_CMD: >
               cd dist &&
@@ -84,6 +86,8 @@ jobs:
               python setup.py bdist_wheel &&
               pip install -r requirements_macos.txt &&
               pip uninstall -y -r requirements_uninstall_macos.txt
+              pip install pytest pytest-cov
+              pytest --cov=timeflux_neurofeedback_inverse_gamepad
 #            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
 #            POST_BUILD_CMD: >
 #              cd dist/ &&
@@ -105,6 +109,8 @@ jobs:
               python setup.py bdist_wheel &&
               pip install -r requirements_windows.txt &&
               pip uninstall -y -r requirements_uninstall_windows.txt
+              pip install pytest pytest-cov
+              pytest --cov=timeflux_neurofeedback_inverse_gamepad
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             POST_BUILD_CMD: >
               cd dist &&
