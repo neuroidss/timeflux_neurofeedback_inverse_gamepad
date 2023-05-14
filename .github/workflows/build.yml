@@ -45,6 +45,7 @@ jobs:
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
         allowUpdates: true
+        replacesArtifacts: true
     - name: check_changelog
       run: echo "${{ needs.changelog.outputs.changelog }}"
 
