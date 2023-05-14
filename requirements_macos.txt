@@ -1,8 +1,6 @@
     timeflux>=0.5.3
     pyedflib
     mne
-    evdev
-    python-uinput
     gephistreamer
     timeflux_ui
     timeflux_dsp
