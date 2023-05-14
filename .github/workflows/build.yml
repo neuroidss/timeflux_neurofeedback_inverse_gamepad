@@ -58,7 +58,7 @@ jobs:
             PRE_BUILD_CMD: >
               brew install portaudio &&
               wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-OSX_amd64.tar.bz2 &&
-              tar -xf liblsl-1.16.0-OSX_amd64.tar.bz2 /Users/runner/liblsl &&
+              tar -xf liblsl-1.16.0-OSX_amd64.tar.bz2 -C /Users/runner/liblsl &&
               pip install wheel &&
               python setup.py bdist_wheel &&
               pip install -r requirements_macos.txt &&
