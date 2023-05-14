@@ -50,8 +50,8 @@ if sys.platform.startswith('win'):
     ]
 else:
 #  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
-#  site_packages='/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages'
-  site_packages='/root/.pyenv/versions/3.9.15/lib/python3.9/site-packages'
+  site_packages='/opt/hostedtoolcache/Python/3.9.15/x64/lib/python3.9/site-packages'
+#  site_packages='/root/.pyenv/versions/3.9.15/lib/python3.9/site-packages'
   
   binaries = [
     (site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
