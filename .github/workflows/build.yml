@@ -9,28 +9,30 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-latest
+    outputs:
+      changelog: ${{ steps.step_create_github_changelog.outputs.changelog }}
     steps:
       - name: "Generate release changelog"
         id: step_create_github_changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
-      - id: step_changelog
-        run: |
-          CHANGELOG=$(cat << EOF
-          ${{ steps.step_create_github_changelog.outputs.changelog }}
-          EOF
-          )
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+#      - id: step_changelog
+#        run: |
+#          CHANGELOG=$(cat << EOF
+#          ${{ steps.step_create_github_changelog.outputs.changelog }}
+#          EOF
+#          )
+#          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+#          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+#          echo "EOF" >> $GITHUB_OUTPUT
 
   Make_GitHub_Release:
     name: Create Release
     runs-on: ubuntu-latest
     needs: changelog
-#    outputs:
-#      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
 #      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
     steps:
     - name: Create Release For Tag
@@ -47,8 +49,8 @@ jobs:
         name: Development Build
 #        tag_name: ${{ github.ref }}
 #        release_name: Release ${{ github.ref }}
-#        body: ${{ needs.changelog.outputs.changelog }}
-        body: ${{ needs.changelog.outputs.CHANGELOG }}
+        body: ${{ needs.changelog.outputs.changelog }}
+#        body: ${{ needs.changelog.outputs.CHANGELOG }}
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
@@ -57,7 +59,7 @@ jobs:
 #      run: |
 #          UPLOAD_URL_BASE64=`echo -n $(cat ${{ steps.create_release.outputs.upload_url }}) | base64 -w 0`
 #          echo -n "UPLOAD_URL=$UPLOAD_URL_BASE64" >> $GITHUB_ENV
-    - id: step_upload_url
+#    - id: step_upload_url
 #      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 #      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
 #      run: |
@@ -67,16 +69,18 @@ jobs:
 #          echo -n "UPLOAD_URL_BASE64=$UPLOAD_URL_BASE64" >> $GITHUB_OUTPUT
 #          echo -n "${{ steps.create_release.outputs.upload_url }}"
 #          echo -n "UPLOAD_URL_BASE64=$UPLOAD_URL_BASE64"
-      run: |
-          UPLOAD_URL=$(cat << EOF
-          test
-          EOF
-          )
-          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
-          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+#      run: |
+#          UPLOAD_URL=$(cat << EOF
+#          test
+#          EOF
+#          )
+#          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
+#          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
+#          echo "EOF" >> $GITHUB_OUTPUT
 #    - name: check_url
 #      run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
+    - name: check_changelog
+      run: echo "${{ needs.changelog.outputs.changelog }}"
 
   build:
     name: Build Executables
@@ -154,26 +158,27 @@ jobs:
 #          name: ${{runner.os}}
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
       - name: check_url
-        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
+        run: echo "${{ needs.Make_GitHub_Release.outputs.upload_url }}"
+#        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
 #        run: echo "${{ env.UPLOAD_URL }}"
 #        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL_BASE64 }}"
-      - name: from base64
-        run: |
-          UPLOAD_URL=`echo -n ${{needs.Make_GitHub_Release.outputs.UPLOAD_URL_BASE64}} | base64 --decode`
-          echo -n "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
-      - name: check_url
+#      - name: from base64
+#        run: |
+#          UPLOAD_URL=`echo -n ${{needs.Make_GitHub_Release.outputs.UPLOAD_URL_BASE64}} | base64 --decode`
+#          echo -n "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
+#      - name: check_url
 #        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
-        run: echo "${{ env.UPLOAD_URL }}"
+#        run: echo "${{ env.UPLOAD_URL }}"
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
-#          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
+          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
 #          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
 #          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
-          upload_url: ${{ env.UPLOAD_URL }}
+#          upload_url: ${{ env.UPLOAD_URL }}
 #          upload_url: ${{ env.upload_url }}
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
