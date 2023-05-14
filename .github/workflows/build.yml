@@ -19,16 +19,17 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     needs: changelog
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+#    outputs:
+#      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
     - name: Create Release For Tag
       id: create_release
 #      uses: actions/create-release@v1
-      uses: ncipollo/release-action@v1.12.0
+      uses: ncipollo/release-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 #        tag_name: latest
         tag: latest
 #        release_name: Development Build
