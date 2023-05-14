@@ -44,7 +44,7 @@ jobs:
         allowUpdates: true
     - id: step_upload_url
 #      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
-      run: echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_ENV"
+      run: echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build Executables
@@ -127,8 +127,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
-#          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
-          upload_url: ${{ env.upload_url }}
+          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
+#          upload_url: ${{ env.upload_url }}
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
 #          asset_content_type: ${{ matrix.ASSET_MIME }}
