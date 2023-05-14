@@ -69,6 +69,7 @@ jobs:
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             POST_BUILD_CMD: >
               cd dist &&
+              ls -Rls &&
               cp timeflux_neurofeedback_inverse_gamepad timeflux_neurofeedback_inverse_gamepad_linux_amd64
             OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad_linux_amd64
 #            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
@@ -93,6 +94,7 @@ jobs:
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             POST_BUILD_CMD: >
               cd dist &&
+              ls -Rls &&
               cp timeflux_neurofeedback_inverse_gamepad timeflux_neurofeedback_inverse_gamepad_macos_amd64
             OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad_macos_amd64
 #            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
@@ -106,9 +108,10 @@ jobs:
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             POST_BUILD_CMD: >
               cd dist &&
-              copy timeflux_neurofeedback_inverse_gamepad.exe.notanexecutable timeflux_neurofeedback_inverse_gamepad_windows_amd64.exe.notanexecutable
-            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad_windows_amd64.exe.notanexecutable
-#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe.notanexecutable
+              dir &&
+              copy timeflux_neurofeedback_inverse_gamepad.exe timeflux_neurofeedback_inverse_gamepad_windows_amd64.exe
+            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad_windows_amd64.exe
+#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
       - uses: actions/checkout@v3
