@@ -15,15 +15,25 @@ jobs:
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
-      - id: step_changelog
+      - name: to base64
         run: |
-          CHANGELOG=$(cat << EOF
+          CHANGELOG_BASE64=`echo -n $(cat << EOF
           ${{ steps.step_create_github_changelog.outputs.changelog }}
           EOF
-          )
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          ) | base64 -w 0`
+      - id: step_changelog
+        run: |
+          echo "CHANGELOG_BASE64<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_BASE64" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+#        run: |
+#          CHANGELOG=$(cat << EOF
+#          ${{ steps.step_create_github_changelog.outputs.changelog }}
+#          EOF
+#          )
+#          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+#          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+#          echo "EOF" >> $GITHUB_OUTPUT
 
   Make_GitHub_Release:
     name: Create Release
@@ -33,6 +43,9 @@ jobs:
 #      upload_url: ${{ steps.create_release.outputs.upload_url }}
 #      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
     steps:
+    - name: from base64
+      run: |
+          CHANGELOG=`echo -n ${{needs.changelog.outputs.CHANGELOG_BASE64}} | base64 --decode`
     - name: Create Release For Tag
       id: create_release
 #      uses: actions/create-release@v1
@@ -48,22 +61,27 @@ jobs:
 #        tag_name: ${{ github.ref }}
 #        release_name: Release ${{ github.ref }}
 #        body: ${{ needs.changelog.outputs.changelog }}
-        body: ${{ needs.changelog.outputs.CHANGELOG }}
+#        body: ${{ needs.changelog.outputs.CHANGELOG }}
+        body: ${{ CHANGELOG }}
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
         allowUpdates: true
+    - name: to base64
+      run: |
+          UPLOAD_URL_BASE64=`echo -n $(cat ${{ steps.create_release.outputs.upload_url }}) | base64 -w 0`
     - id: step_upload_url
 #      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 #      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
-      run: |
-          UPLOAD_URL=$(cat << EOF
-          ${{ steps.create_release.outputs.upload_url }}
-          EOF
-          )
-          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
-          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      run: echo "UPLOAD_URL_BASE64=${{ UPLOAD_URL_BASE64 }}" >> "$GITHUB_OUTPUT"
+#      run: |
+#          UPLOAD_URL=$(cat << EOF
+#          ${{ steps.create_release.outputs.upload_url }}
+#          EOF
+#          )
+#          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
+#          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
+#          echo "EOF" >> $GITHUB_OUTPUT
 #    - name: check_url
 #      run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
 
@@ -142,8 +160,12 @@ jobs:
 #        with:
 #          name: ${{runner.os}}
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
+      - name: from base64
+        run: |
+          UPLOAD_URL=`echo -n ${{needs.Make_GitHub_Release.outputs.UPLOAD_URL_BASE64}} | base64 --decode`
       - name: check_url
-        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
+#        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
+        run: echo "${{ UPLOAD_URL }}"
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
@@ -152,7 +174,8 @@ jobs:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
 #          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
 #          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
-          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
+#          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
+          upload_url: ${{ UPLOAD_URL }}
 #          upload_url: ${{ env.upload_url }}
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
