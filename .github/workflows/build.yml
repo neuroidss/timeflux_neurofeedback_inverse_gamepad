@@ -129,8 +129,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          upload_url: "${{ needs.Make_GitHub_Release.outputs.upload_url }}"
-#          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
+#          upload_url: "${{ needs.Make_GitHub_Release.outputs.upload_url }}"
+          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
 #          asset_content_type: ${{ matrix.ASSET_MIME }}
