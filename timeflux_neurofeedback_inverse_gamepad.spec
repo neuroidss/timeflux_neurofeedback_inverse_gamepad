@@ -108,14 +108,14 @@ if sys.platform.startswith('darwin'):
 #  site_packages='/root/.pyenv/versions/3.9.13/lib/python3.9/site-packages'
   
   binaries = [
-    (site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
-    (site_packages+"/brainflow/lib/", "brainflow/lib"),
-    (site_packages+"/pylsl/lib/", "pylsl/lib"),
-    ("/usr/lib/liblsl.so", "pylsl/lib"),
-    ("/Users/runner/liblsl/lib", "pylsl/lib"),
-    (site_packages+"/pyzmq.libs/", "pyzmq.libs"),
-    (site_packages+"/tables/", "tables"),
-    (site_packages+"/opencv_python.libs/", "opencv_python.libs"),
+#    (site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
+#    (site_packages+"/brainflow/lib/", "brainflow/lib"),
+#    (site_packages+"/pylsl/lib/", "pylsl/lib"),
+#    ("/usr/lib/liblsl.so", "pylsl/lib"),
+#    ("/Users/runner/liblsl/lib", "pylsl/lib"),
+#    (site_packages+"/pyzmq.libs/", "pyzmq.libs"),
+#    (site_packages+"/tables/", "tables"),
+#    (site_packages+"/opencv_python.libs/", "opencv_python.libs"),
     ]
   datas=[
     (site_packages, "."),
