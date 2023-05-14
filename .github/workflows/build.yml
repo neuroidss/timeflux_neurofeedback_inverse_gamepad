@@ -36,6 +36,7 @@ jobs:
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
+        skipIfReleaseExists: true
   
   build:
     name: Build Executables
@@ -84,7 +85,7 @@ jobs:
               pip install -r requirements_windows.txt &&
               pip uninstall -y -r requirements_uninstall_windows.txt
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
-            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
+            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe.notanexecutable
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
       - uses: actions/checkout@v3
