@@ -2,7 +2,8 @@
 
 import sys
 if sys.platform.startswith('win'):
-  site_packages='C:/Python39/Lib/site-packages'
+#  site_packages='C:/Python39/Lib/site-packages'
+  site_packages='c:\hostedtoolcache\windows\python\3.9.13\x64\lib\site-packages'
   binaries = [
 #	(site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
 #    (site_packages+"/brainflow/lib/", "brainflow/lib"),
@@ -50,8 +51,8 @@ if sys.platform.startswith('win'):
     ]
 else:
 #  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
-#  site_packages='/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages'
-  site_packages='/root/.pyenv/versions/3.9.15/lib/python3.9/site-packages'
+  site_packages='/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages'
+#  site_packages='/root/.pyenv/versions/3.9.13/lib/python3.9/site-packages'
   
   binaries = [
     (site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
@@ -88,8 +89,8 @@ else:
     (site_packages+"/frozenlist", "frozenlist"),
     (site_packages+"/mne_connectivity", "mne_connectivity"),
 #    ("/usr/lib/python3.9/timeit.py", "timeit"),
-#    ("/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/timeit.py", "timeit"),
-    ("/root/.pyenv/versions/3.9.15/lib/python3.9/timeit.py", "timeit"),
+    ("/opt/hostedtoolcache/Python/3.9.15/x64/lib/python3.9/timeit.py", "timeit"),
+#    ("/root/.pyenv/versions/3.9.15/lib/python3.9/timeit.py", "timeit"),
     (site_packages+"/tqdm", "tqdm"),
     (site_packages+"/pyformulas", "pyformulas"),
     (site_packages+"/cv2", "cv2"),
