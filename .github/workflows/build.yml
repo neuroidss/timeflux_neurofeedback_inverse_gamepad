@@ -55,15 +55,17 @@ jobs:
         allowUpdates: true
     - id: step_upload_url
 #      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
-      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
-#      run: |
-#          UPLOAD_URL=$(cat << EOF
-#          ${{ steps.create_release.outputs.upload_url }}
-#          EOF
-#          )
-#          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
-#          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
-#          echo "EOF" >> $GITHUB_OUTPUT
+#      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> "$GITHUB_OUTPUT"
+      run: |
+          UPLOAD_URL=$(cat << EOF
+          ${{ steps.create_release.outputs.upload_url }}
+          EOF
+          )
+          echo "UPLOAD_URL<<EOF" >> $GITHUB_OUTPUT
+          echo "$UPLOAD_URL" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+#    - name: check_url
+#      run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
 
   build:
     name: Build Executables
@@ -149,8 +151,8 @@ jobs:
         with:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
 #          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
-          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
-#          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
+#          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
+          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
 #          upload_url: ${{ env.upload_url }}
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
