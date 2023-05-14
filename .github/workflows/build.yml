@@ -46,7 +46,7 @@ jobs:
             PRE_BUILD_CMD: >
               sudo apt install -y portaudio19-dev &&
               wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-jammy_amd64.deb &&
-              dpkg -i liblsl-1.16.0-jammy_amd64.deb &&
+              sudo dpkg -i liblsl-1.16.0-jammy_amd64.deb &&
               pip install wheel &&
               python setup.py bdist_wheel &&
               pip install -r requirements_linux.txt &&
