@@ -52,8 +52,8 @@ if sys.platform.startswith('win'):
     (site_packages+"/pooch", "pooch"),
     ]
 if sys.platform.startswith('linux'):
-  site_packages='./env/lib/python3.9/site-packages'
-#  site_packages='/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages'
+#  site_packages='./env/lib/python3.9/site-packages'
+  site_packages='/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages'
 #  site_packages='/root/.pyenv/versions/3.9.13/lib/python3.9/site-packages'
   
   binaries = [
@@ -91,8 +91,8 @@ if sys.platform.startswith('linux'):
     (site_packages+"/aiosignal", "aiosignal"),
     (site_packages+"/frozenlist", "frozenlist"),
     (site_packages+"/mne_connectivity", "mne_connectivity"),
-    ("/usr/lib/python3.9/timeit.py", "timeit"),
-#    ("/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/timeit.py", "timeit"),
+#    ("/usr/lib/python3.9/timeit.py", "timeit"),
+    ("/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/timeit.py", "timeit"),
 #    ("/root/.pyenv/versions/3.9.15/lib/python3.9/timeit.py", "timeit"),
     (site_packages+"/tqdm", "tqdm"),
     (site_packages+"/pyformulas", "pyformulas"),
