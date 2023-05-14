@@ -29,8 +29,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: latest
-        release_name: Development Build
+#        tag_name: latest
+        tag: latest
+#        release_name: Development Build
+        name: Development Build
 #        tag_name: ${{ github.ref }}
 #        release_name: Release ${{ github.ref }}
         body: ${{ needs.changelog.outputs.changelog }}
