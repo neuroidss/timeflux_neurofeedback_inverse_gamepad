@@ -140,6 +140,8 @@ jobs:
 #        with:
 #          name: ${{runner.os}}
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
+      - name: check_url
+        run: echo ${{ needs.Make_GitHub_Release.outputs.upload_url }}
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
