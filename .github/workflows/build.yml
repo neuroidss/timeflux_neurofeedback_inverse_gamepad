@@ -39,7 +39,8 @@ jobs:
         name: Development Build
 #        tag_name: ${{ github.ref }}
 #        release_name: Release ${{ github.ref }}
-        body: ${{ needs.changelog.outputs.changelog }}
+        body: ""
+#        body: ${{ needs.changelog.outputs.changelog }}
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
