@@ -3,7 +3,7 @@
 import sys
 if sys.platform.startswith('win'):
 #  site_packages='C:/Python39/Lib/site-packages'
-  site_packages='c:\hostedtoolcache\windows\python\3.9.13\x64\lib\site-packages'
+  site_packages='c:/hostedtoolcache/windows/python/3.9.13/x64/lib/site-packages'
   binaries = [
 #	(site_packages+"/_libsuinput.cpython-39-x86_64-linux-gnu.so", "."),
 #    (site_packages+"/brainflow/lib/", "brainflow/lib"),
