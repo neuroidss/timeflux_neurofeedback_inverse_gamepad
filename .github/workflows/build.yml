@@ -50,6 +50,7 @@ jobs:
     name: Build Executables
 #    needs: create_release
     runs-on: ${{ matrix.os }}
+    needs: Make_GitHub_Release
     strategy:
       fail-fast: true
       matrix:
