@@ -62,7 +62,7 @@ jobs:
 #        release_name: Release ${{ github.ref }}
 #        body: ${{ needs.changelog.outputs.changelog }}
 #        body: ${{ needs.changelog.outputs.CHANGELOG }}
-        body: ${{ CHANGELOG }}
+        body: ${ CHANGELOG }
         draft: false
         prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
@@ -165,7 +165,7 @@ jobs:
           UPLOAD_URL=`echo -n ${{needs.Make_GitHub_Release.outputs.UPLOAD_URL_BASE64}} | base64 --decode`
       - name: check_url
 #        run: echo "${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}"
-        run: echo "${{ UPLOAD_URL }}"
+        run: echo "${ UPLOAD_URL }"
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
@@ -175,7 +175,7 @@ jobs:
 #          upload_url: ${{ needs.Make_GitHub_Release.outputs.upload_url }}
 #          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
 #          upload_url: ${{ needs.Make_GitHub_Release.outputs.UPLOAD_URL }}
-          upload_url: ${{ UPLOAD_URL }}
+          upload_url: ${ UPLOAD_URL }
 #          upload_url: ${{ env.upload_url }}
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
