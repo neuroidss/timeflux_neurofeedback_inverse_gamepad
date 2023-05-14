@@ -44,6 +44,9 @@ jobs:
         include:
           - os: ubuntu-latest
             PRE_BUILD_CMD: >
+              cd /github/workspace
+              pip install wheel
+              python setup.py bdist_wheel
               pip install -r requirements_linux.txt &&
               pip uninstall -r -y requirements_uninstall_linux.txt
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
@@ -51,6 +54,9 @@ jobs:
             ASSET_MIME: application/octet-stream
           - os: macos-latest
             PRE_BUILD_CMD: >
+              cd /github/workspace
+              pip install wheel
+              python setup.py bdist_wheel
               pip install -r requirements_macos.txt &&
               pip uninstall -r -y requirements_uninstall_macos.txt
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
@@ -62,6 +68,9 @@ jobs:
             ASSET_MIME: application/zip
           - os: windows-latest
             PRE_BUILD_CMD: >
+              cd /github/workspace
+              pip install wheel
+              python setup.py bdist_wheel
               pip install -r requirements_windows.txt &&
               pip uninstall -r -y requirements_uninstall_windows.txt
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
