@@ -50,7 +50,7 @@ jobs:
               pip install wheel &&
               python setup.py bdist_wheel &&
               pip install -r requirements_linux.txt &&
-              pip uninstall -r -y requirements_uninstall_linux.txt
+              pip uninstall -y -r requirements_uninstall_linux.txt
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
             POST_BUILD_CMD: >
               cd dist/ &&
@@ -65,7 +65,7 @@ jobs:
 #              pip install wheel &&
 #              python setup.py bdist_wheel &&
 #              pip install -r requirements_macos.txt &&
-#              pip uninstall -r -y requirements_uninstall_macos.txt
+#              pip uninstall -y -r requirements_uninstall_macos.txt
 #            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
 #            POST_BUILD_CMD: >
 #              cd dist/ &&
@@ -78,7 +78,7 @@ jobs:
 #              pip install wheel &&
 #              python setup.py bdist_wheel &&
 #              pip install -r requirements_windows.txt &&
-#              pip uninstall -r -y requirements_uninstall_windows.txt
+#              pip uninstall -y -r requirements_uninstall_windows.txt
 #            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad.spec
 #            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
 #            ASSET_MIME: application/vnd.microsoft.portable-executable
