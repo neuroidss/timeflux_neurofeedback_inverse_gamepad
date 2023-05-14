@@ -135,7 +135,7 @@ jobs:
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
 #          asset_content_type: ${{ matrix.ASSET_MIME }}
-          asset_name: '${{runner.os}}-LICENSE'
+          asset_name: '${{runner.os}}-LICENSE_'
           asset_path: './LICENSE'
           asset_content_type: text/plain
 #  purge_release_if_failed:
