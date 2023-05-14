@@ -125,20 +125,44 @@ jobs:
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
       - name: check_url
         run: echo "${{ needs.Make_GitHub_Release.outputs.upload_url }}"
-      - name: Upload release assets
-        uses: actions/upload-release-asset@v1
+        
+      - name: Create Release For Tag
+        id: create_release
+#      uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+#        tag_name: latest
+          tag: latest
+#        release_name: Development Build
+          name: Development Build
+#        tag_name: ${{ github.ref }}
+#        release_name: Release ${{ github.ref }}
+          body: ""
+#        body: ${{ needs.changelog.outputs.changelog }}
+          draft: false
+          prerelease: true
+#        prerelease: ${{ contains(github.ref, 'beta') }}
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: "./LICENSE"
+        
+#      - name: Upload release assets
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
 #          upload_url: ${{ needs.create_release.outputs.upload_url }}
 #          upload_url: "${{ needs.Make_GitHub_Release.outputs.upload_url }}"
-          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
+#          upload_url: "https://uploads.github.com/repos/neuroidss/timeflux_neurofeedback_inverse_gamepad/releases/89082576/assets{?name,label}"
 #          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
 #          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
 #          asset_content_type: ${{ matrix.ASSET_MIME }}
-          asset_name: '${{runner.os}}-LICENSE_'
-          asset_path: './LICENSE'
-          asset_content_type: text/plain
+#          asset_name: '${{runner.os}}-LICENSE_'
+#          asset_path: './LICENSE'
+#          asset_content_type: text/plain
 #  purge_release_if_failed:
 #    name: Delete release if build failed
 #    needs: build
