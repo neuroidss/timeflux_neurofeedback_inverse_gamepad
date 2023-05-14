@@ -90,7 +90,7 @@ else:
     (site_packages+"/frozenlist", "frozenlist"),
     (site_packages+"/mne_connectivity", "mne_connectivity"),
 #    ("/usr/lib/python3.9/timeit.py", "timeit"),
-    ("/opt/hostedtoolcache/Python/3.9.15/x64/lib/python3.9/timeit.py", "timeit"),
+    ("/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/timeit.py", "timeit"),
 #    ("/root/.pyenv/versions/3.9.15/lib/python3.9/timeit.py", "timeit"),
     (site_packages+"/tqdm", "tqdm"),
     (site_packages+"/pyformulas", "pyformulas"),
