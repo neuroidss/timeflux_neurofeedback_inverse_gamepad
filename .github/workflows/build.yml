@@ -15,23 +15,26 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
 
-#  create_release:
-#    name: Create Release
-#    runs-on: ubuntu-latest
-#    needs: changelog
-#    outputs:
-#      upload_url: ${{ steps.create_release.outputs.upload_url }}
-#    steps:
-#    - name: Create Release For Tag
-#      id: create_release
-#      uses: actions/create-release@v1
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      with:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: changelog
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+    - name: Create Release For Tag
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: latest
+        release_name: Development Build
 #        tag_name: ${{ github.ref }}
 #        release_name: Release ${{ github.ref }}
-#        body: ${{ needs.changelog.outputs.changelog }}
-#        draft: false
+        body: ${{ needs.changelog.outputs.changelog }}
+        draft: false
+        prerelease: true
 #        prerelease: ${{ contains(github.ref, 'beta') }}
   
   build:
@@ -42,18 +45,18 @@ jobs:
       fail-fast: true
       matrix:
         include:
-#          - os: ubuntu-latest
-#            PRE_BUILD_CMD: >
-#              sudo apt install -y portaudio19-dev &&
-#              wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-jammy_amd64.deb &&
-#              sudo dpkg -i liblsl-1.16.0-jammy_amd64.deb &&
-#              pip install wheel &&
-#              python setup.py bdist_wheel &&
-#              pip install -r requirements_linux.txt &&
-#              pip uninstall -y -r requirements_uninstall_linux.txt
-#            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
-#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
-#            ASSET_MIME: application/octet-stream
+          - os: ubuntu-latest
+            PRE_BUILD_CMD: >
+              sudo apt install -y portaudio19-dev &&
+              wget https://github.com/sccn/liblsl/releases/download/v1.16.0/liblsl-1.16.0-jammy_amd64.deb &&
+              sudo dpkg -i liblsl-1.16.0-jammy_amd64.deb &&
+              pip install wheel &&
+              python setup.py bdist_wheel &&
+              pip install -r requirements_linux.txt &&
+              pip uninstall -y -r requirements_uninstall_linux.txt
+            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
+            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
+            ASSET_MIME: application/octet-stream
           - os: macos-latest
             PRE_BUILD_CMD: >
               brew install portaudio &&
@@ -74,15 +77,15 @@ jobs:
             BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
             OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad
             ASSET_MIME: application/octet-stream
-#          - os: windows-latest
-#            PRE_BUILD_CMD: >
-#              pip install wheel &&
-#              python setup.py bdist_wheel &&
-#              pip install -r requirements_windows.txt &&
-#              pip uninstall -y -r requirements_uninstall_windows.txt
-#            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
-#            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
-#            ASSET_MIME: application/vnd.microsoft.portable-executable
+          - os: windows-latest
+            PRE_BUILD_CMD: >
+              pip install wheel &&
+              python setup.py bdist_wheel &&
+              pip install -r requirements_windows.txt &&
+              pip uninstall -y -r requirements_uninstall_windows.txt
+            BUILD_CMD: pyinstaller timeflux_neurofeedback_inverse_gamepad_onefile.spec
+            OUT_FILE_NAME: timeflux_neurofeedback_inverse_gamepad.exe
+            ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
@@ -108,16 +111,15 @@ jobs:
 #        with:
 #          name: ${{runner.os}}
 #          path: ./dist/${{ matrix.OUT_FILE_NAME }}
-#      - name: Upload release assets
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ needs.create_release.outputs.upload_url }}
-#          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
-#          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
-#          asset_content_type: ${{ matrix.ASSET_MIME }}
-
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
+          asset_path: './dist/${{matrix.OUT_FILE_NAME}}'
+          asset_content_type: ${{ matrix.ASSET_MIME }}
 #  purge_release_if_failed:
 #    name: Delete release if build failed
 #    needs: build
