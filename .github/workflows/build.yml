@@ -16,7 +16,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
       - id: step_changelog
-        run: echo "changelog=${{ steps.step_create_github_changelog.outputs.changelog }}" >> "$GITHUB_OUTPUT"
+        run: echo "changelog<<${{ steps.step_create_github_changelog.outputs.changelog }}" >> "$GITHUB_OUTPUT"
 
   Make_GitHub_Release:
     name: Create Release
