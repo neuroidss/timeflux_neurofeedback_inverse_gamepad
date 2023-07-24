@@ -10,34 +10,59 @@ from mne_connectivity import spectral_connectivity_epochs
 
 class SpectralConnectivityEpochs(Node):
 
-    """Adds ``value`` to each cell of the input.
-
-    This is one of the simplest possible nodes.
-
-    Attributes:
-        i (Port): Default input, expects DataFrame.
-        o (Port): Default output, provides DataFrame.
-
-    Example:
-        .. literalinclude:: /../examples/test.yaml
-           :language: yaml
+    """
+        Parameters
+        ----------
+        ch_names_pick: list
+            channels names to pick
+        epochs_con: int
+            number of epochs for connectivity
+        method: string
+            connectivity method one of 'coh', 'cohy', 'imcoh', 'plv', 'ciplv', 'ppc', 'pli', 'dpli', 'wpli', 'wpli2_debiased'
+        fmin: float
+            frequency minimum
+        fmax: float
+            frequency maximum
+        n_jobs: int
+            number of jobs
+        duration: float
+            duration in seconds
+        overlap: float
+            overlap in seconds
+        sfreq: int
+            number of samples per second
+        to_screen: boolean
+            output to screen
+            Default: False
+        vmin: float
+            duration in seconds
+            Default: 0
+        con_name: string
+            connectivity name
+            Default: 'neurofeedback'
+        node_colors: list
+            node colors
+            Default: None
     """
 
     def __init__(
         self,
         ch_names_pick,
-        epochs_con,
         method,
         fmin,
         fmax,
-        n_jobs,
         duration,
         overlap,
         sfreq,
+        epochs_con=1,
+        n_jobs=1,
         to_screen=False,
         vmin=0,
         con_name="neurofeedback",
         node_colors=None,
+        xsize=1500,
+        ysize=1500,
+        triangle=True,
     ):
         """
         Args:
@@ -59,6 +84,9 @@ class SpectralConnectivityEpochs(Node):
         self._con_name = con_name
         self._node_colors = node_colors
         self._index = None
+        self._xsize = xsize
+        self._ysize = ysize
+        self._triangle = triangle
 
         self._cohs_tril_indices = None
 
@@ -67,7 +95,7 @@ class SpectralConnectivityEpochs(Node):
             import pyformulas as pf
 
             self._canvas = np.zeros((800, 800))
-            self._screen = pf.screen(self._canvas, "circle_cons")
+            self._screen = pf.screen(self._canvas, con_name)
 
     def update(self):
         # Make sure we have a non-empty dataframe
@@ -77,9 +105,10 @@ class SpectralConnectivityEpochs(Node):
             self.o.data = self.i.data.tail(1)
 
             if self._cohs_tril_indices is None:
-                if self._ch_names_pick is None:
+              if self._ch_names_pick is None:
                     self._ch_names_pick = list(self.i.data.columns)
 
+              if self._triangle:
                 cons_len = int(
                     len(self._ch_names_pick) * (len(self._ch_names_pick) - 1) / 2
                 )
@@ -118,6 +147,53 @@ class SpectralConnectivityEpochs(Node):
                                     self._cohs_tril_indices[1][
                                         cohs_tril_indices_count
                                     ] = cons_index_diag_r_i
+                                    cohs_tril_indices_count = (
+                                        cohs_tril_indices_count + 1
+                                    )
+                self._con_tril_names = []
+                self._con_tril_names_2 = []
+                for idx in range(len(self._cohs_tril_indices[0])):
+                    self._con_tril_names.append(
+                        self._ch_names_pick[self._cohs_tril_indices[0][idx]]
+                        + "__"
+                        + self._ch_names_pick[self._cohs_tril_indices[1][idx]]
+                    )
+                    self._con_tril_names_2.append(
+                        (
+                            self._ch_names_pick[self._cohs_tril_indices[0][idx]]
+                            + "__"
+                            + self._ch_names_pick[self._cohs_tril_indices[1][idx]],
+                            self._ch_names_pick[self._cohs_tril_indices[1][idx]]
+                            + "__"
+                            + self._ch_names_pick[self._cohs_tril_indices[0][idx]],
+                        )
+                    )
+              else:
+                cons_len = int(
+                    len(self._ch_names_pick) * (len(self._ch_names_pick))
+                )
+                #        fs_mult=3
+                #        audio_volume_mult=200
+                #  cons_dur=fs_mult#fps
+                #        cons_dur=int(fps*10)
+                #        audio_cons_fs=int(cons_len*(fs_mult-0.0))
+                #        cons_index=0
+                #        cons=np.zeros((cons_dur,cons_len),dtype=float)
+
+                import numpy as np
+
+                self._cohs_tril_indices = np.zeros((2, cons_len), dtype=int)
+                cohs_tril_indices_count = 0
+                for cons_index_diag in range(len(self._ch_names_pick)):
+                    for cons_index_diag_2 in range(len(self._ch_names_pick)):
+                                    self._cohs_tril_indices[0][
+                                        cohs_tril_indices_count
+                                    ] = (
+                                        cons_index_diag
+                                    )
+                                    self._cohs_tril_indices[1][
+                                        cohs_tril_indices_count
+                                    ] = cons_index_diag_2
                                     cohs_tril_indices_count = (
                                         cohs_tril_indices_count + 1
                                     )
@@ -191,11 +267,16 @@ class SpectralConnectivityEpochs(Node):
 
             #                              cons=np.roll(cons,1,axis=0)
             conmat = con.get_data(output="dense")[:, :, 0]
+            if not self._triangle:
+              for i in range(len(conmat)):
+                conmat[i][i] = 1
+                for j in range(i, len(conmat)):
+                  conmat[i][j] = conmat[j][i]
             #          print(conmat.shape)
             #          cons[1:,:] = cons[:len(cons),:]
             con_tril = conmat[
                 (self._cohs_tril_indices[0], self._cohs_tril_indices[1])
-            ].flatten("F")
+              ].flatten("F")
 
             #        print('con_tril:',con_tril)
             #        data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[0]])
@@ -231,6 +312,10 @@ class SpectralConnectivityEpochs(Node):
                     self._index = index
                 index_delta = index - self._index
 
+                px = 1/plt.rcParams['figure.dpi']  # pixel in inches
+                fig, ax = plt.subplots(figsize=(self._xsize*px, self._ysize*px), facecolor='black',
+                       subplot_kw=dict(polar=True))
+
                 fig, ax = plot_connectivity_circle(
                     conmat,
                     label_names,
@@ -252,6 +337,8 @@ class SpectralConnectivityEpochs(Node):
                     vmax=1,
                     fontsize_names=8,
                     node_colors=self._node_colors,
+                    padding=1.2,
+                    ax=ax,
                 )  # , fig=fig)
 
                 fig.canvas.draw()
@@ -267,16 +354,18 @@ class SpectralConnectivityEpochs(Node):
                 left = 348 - int(size / 2) + int(size1 / 2)
                 top = 404 - int(size / 2) + int(size1 / 16)
 
-                image_crop = image[top : top + size, left : left + size]
+#                image_crop = image[top : top + size, left : left + size]
                 # im2 = im1.crop((left, top, left+size, top+size))
 
                 rotate = True
                 if rotate:
-                    image_rot90 = np.rot90(image_crop)
+#                    image_rot90 = np.rot90(image_crop)
+                    image_rot90 = np.rot90(image)
                     image = image_rot90
                 #              screen.update(image_rot90)
                 else:
-                    image = image_crop
+#                    image = image_crop
+                    image = image
                 #            image_rot90 = np.rot90(image)
 
                 #            screen.update(image)
