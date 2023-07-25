@@ -214,8 +214,7 @@ graphs:
       params:
         hostname: '127.0.0.1'
         port: '7860'
-        fn_index: 0
-#        fn_index: 2
+        fn_index: 2
         attention_type: "coherence"
 #    - id: LocQuery
 #      module: timeflux.nodes.query
