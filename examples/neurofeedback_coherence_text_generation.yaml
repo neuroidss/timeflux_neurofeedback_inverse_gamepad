@@ -226,7 +226,7 @@ graphs:
       - source: Subscriber:coherence
 #        target: LocQuery
 #      - source: LocQuery
-        target: musicgenstreamer
+        target: gradiostreamer
     # Update file every second
 #    rate: 1
 #    rate: 64
