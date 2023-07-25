@@ -1,0 +1,303 @@
+graphs:
+
+  # The publish/subscribe broker graph
+  - id: PubSubBroker
+    nodes:
+    # Allow communication between graphs
+    - id: Broker
+      module: timeflux.nodes.zmq
+      class: Broker
+#      class: BrokerLVC
+
+  # The main processing graph
+  - id: AcquireEEG
+    nodes:
+#    - id: random
+#      module: timeflux.nodes.random
+#      class: Random
+#      params:
+#        columns: 2
+#        seed: 1
+#    - id: acquire0
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.hdf5
+#      module: timeflux.nodes.hdf5
+#      class: Replay
+#      params:
+#        filename: /tmp/20221217-195349.hdf5
+#        keys:
+#          - /eeg/raw
+#          - Fp1
+#        keys: [ Fp1, AF3 ]
+#        resync: False
+    - id: replay
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Replay
+      params:
+        filename: eeg/PAC_IMtest.bdf
+        keys: [ eeg ]
+        resync: False
+#        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#        keys: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#        board: freeeeg32
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+        #serial_port: /dev/cu.usbmodem3067384E33301 # USB
+#        serial_port: /dev/cu.SLAB_USBtoUART # Optical
+#        serial_port: /dev/ttyACM0
+
+#    - id: acquire
+#      module: timeflux_brainflow.nodes.driver
+#      class: BrainFlow
+#      params:
+#        board: freeeeg32
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+        #serial_port: /dev/cu.usbmodem3067384E33301 # USB
+#        serial_port: /dev/cu.SLAB_USBtoUART # Optical
+#        serial_port: /dev/ttyS20
+#        serial_port: /dev/ttyACM0
+#        debug: true
+        
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
+    - id: LocQuery
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+#        key: [ Oz ]
+#        key: [ C3, Cz, C4, O1, Oz, O2 ]
+        key: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+#        key: [ AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+        axis: 1
+        
+
+    # Receive EEG signal from the network
+#    - id: acquire
+#    - id: LSL
+#      module: timeflux.nodes.lsl
+#      class: Receive
+#      params:
+#        prop: name
+#        value: openvibeSignal
+#        unit: s
+#        sync: network
+#        prop: name
+#        value: EEG
+#        prop: type
+#        value: random
+#        unit: ns
+#        sync: None
+#        name: EEG
+#        name: signal
+#        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+    - id: RenameColumns
+      module: timeflux.nodes.axis
+      class: RenameColumns
+      params:
+        names: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
+    # Publish the raw EEG signal
+    - id: PublisherRaw
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: raw
+    # Connect nodes
+    edges:
+#      - source: random
+#      - source: acquire
+#      - source: LSL
+#        target: RenameColumns
+#      - source: RenameColumns
+      - source: replay:eeg
+        target: LocQuery
+      - source: LocQuery
+#        target: dejitter
+#      - source: dejitter
+#      - source: LSL
+        target: PublisherRaw
+    # Run this graph 25 times per second
+#    rate: 3
+#    rate: 10
+    rate: 24
+#    rate: 512
+#    rate: 64
+#    rate: 25
+
+#  - id: AcquireGamepad
+#    nodes:
+#    - id: acquireInputDevice
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.gamepad
+#      class: InputDevice
+#    - id: PublisherInputDevice
+#      module: timeflux.nodes.zmq
+#      class: Pub
+#      params:
+#        topic: InputDevice
+#    edges:
+#      - source: acquireInputDevice
+#        target: PublisherInputDevice
+#    rate: 10
+
+  - id: StreamToBrowser
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+#        - bdf
+        - raw
+#        - highpass1hz
+#        - alpha
+#        - beta
+#        - alpha_beta_abs_avg
+#        - bands
+#        - iirfilter
+#        - gamepad
+        - coherence
+#        - InputDevice
+    - id: monitor
+      module: timeflux_ui.nodes.ui
+      class: UI
+    edges:
+      - source: Subscriber:coherence
+        target: monitor:eeg_coherence
+#      - source: Subscriber:gamepad
+#        target: monitor:eeg_gamepad
+#      - source: Subscriber:bdf
+#        target: monitor:eeg_bdf
+#      - source: Subscriber:bands
+#        target: Recorder:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: Recorder:eeg_iirfilter
+      - source: Subscriber:raw
+        target: monitor:eeg_raw
+#      - source: Subscriber:highpass1hz
+#        target: monitor:eeg_highpass1hz
+#      - source: Subscriber:alpha
+#        target: monitor:eeg_alpha
+#      - source: Subscriber:beta
+#        target: monitor:eeg_beta
+#      - source: Subscriber:alpha_beta_abs_avg
+#        target: monitor:eeg_alpha_beta_abs_avg
+#      - source: Subscriber:InputDevice
+#        target: monitor:gamepad_InputDevice
+#      - source: Subscriber:bands
+#        target: monitor:eeg_bands
+#      - source: Subscriber:iirfilter
+#        target: monitor:eeg_iirfilter
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 24
+#    rate: 10
+
+  - id: StreamToMusicGen
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+        - coherence
+    - id: musicgenstreamer
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.musicgenstreamer
+      class: MusicGenStreamer
+      params:
+        hostname: '127.0.0.1'
+        port: '7860'
+        fn_index: 0
+#        fn_index: 2
+        attention_type: "coherence"
+#    - id: LocQuery
+#      module: timeflux.nodes.query
+#      class: LocQuery
+#      params:
+#        key: [ C4__C3 ]
+#        axis: 1
+    edges:
+      - source: Subscriber:coherence
+#        target: LocQuery
+#      - source: LocQuery
+        target: musicgenstreamer
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
+    rate: 24
+#    rate: 10
+
+  # The recorder graph
+  - id: ProcessToCircle
+    nodes:
+    # Receive data streams from the broker
+    - id: Subscriber
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics:
+#        topics: [ raw, bands ]
+        - raw
+    - id: CoherenceWindow
+      module: timeflux.nodes.window
+      class: Window
+      params:
+#        length: 1.0
+        length: 0.625
+        step: 0.1
+#        step: 0.002
+    - id: Coherence
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.coherence
+      class: SpectralConnectivityEpochs
+      params:
+#        ch_names_pick: ['C3','C4','Cz']
+        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#        epochs_con: 10
+        epochs_con: 1
+#        method: plv
+#        method: ciplv
+        method: coh
+        fmin: 8
+        fmax: 12
+        n_jobs: 1
+        duration: 0.625
+        overlap: 0.525
+        sfreq: 512
+        to_screen: False
+#        to_screen: True
+    - id: PublisherCoherence
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: coherence
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Interpolate
+      params:
+#        rate: 200
+#        rate: 64
+        rate: 512
+    # Connect nodes
+    edges:
+#      - source: acquire
+      - source: Subscriber:raw
+        target: dejitter
+      - source: dejitter
+        target: CoherenceWindow
+      - source: CoherenceWindow
+        target: Coherence
+      - source: Coherence
+        target: PublisherCoherence
+    rate: 24
+#    rate: 10
+
+
