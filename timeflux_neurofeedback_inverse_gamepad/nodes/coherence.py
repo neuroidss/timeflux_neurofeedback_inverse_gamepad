@@ -63,6 +63,7 @@ class SpectralConnectivityEpochs(Node):
         xsize=1500,
         ysize=1500,
         triangle=True,
+        to_file=None,
     ):
         """
         Args:
@@ -76,6 +77,7 @@ class SpectralConnectivityEpochs(Node):
         self._fmin = fmin
         self._fmax = fmax
         self._n_jobs = n_jobs
+        self._duration_init = duration
         self._duration = duration
         self._overlap = overlap
         self._sfreq = sfreq
@@ -87,6 +89,7 @@ class SpectralConnectivityEpochs(Node):
         self._xsize = xsize
         self._ysize = ysize
         self._triangle = triangle
+        self._to_file = to_file
 
         self._cohs_tril_indices = None
 
@@ -94,12 +97,13 @@ class SpectralConnectivityEpochs(Node):
             import numpy as np
             import pyformulas as pf
 
-            self._canvas = np.zeros((800, 800))
+            self._canvas = np.zeros((self._xsize, self._ysize))
             self._screen = pf.screen(self._canvas, con_name)
 
     def update(self):
         # Make sure we have a non-empty dataframe
         if self.i.ready():
+#            print('len(self.i.data): ', len(self.i.data))
 
             self.o.meta = self.i.meta
             self.o.data = self.i.data.tail(1)
@@ -230,6 +234,10 @@ class SpectralConnectivityEpochs(Node):
             #        print('raw: ', raw)
 
             raw.load_data()
+            if self._duration_init is None:
+#              print('raw.n_times: ', raw.n_times)
+#              print('raw.times: ', raw.times)
+              self._duration = raw.times[len(raw.times)-1]
 
             epochs = mne.make_fixed_length_epochs(
                 raw,
@@ -374,11 +382,18 @@ class SpectralConnectivityEpochs(Node):
                 ##            image = image[:,:,::-1]
                 ##            screen.update(image)
 
+                if self._to_file is not None:
+                  #fig.savefig(self._to_file)
+                  from PIL import Image
+                  im = Image.fromarray(image)
+                  im.save(self._to_file)
+
                 plt.close(fig)
                 del fig
 
                 image = image[:, :, ::-1]
                 self._screen.update(image)
 
+                
 
 #            video_outs[shows_idx].append_data(image)

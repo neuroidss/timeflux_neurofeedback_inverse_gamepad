@@ -21,8 +21,10 @@ class GradioStreamer(Node):
     def __init__(self,
         hostname = '127.0.0.1',
         port = '7860',
-        fn_index = 2,
-        attention_type = "coherence",
+        fn_index = None,
+        api_name = None,
+        format_str = "sj",
+        str_array = ["coherence"],
     ):
         """
         Args:
@@ -39,7 +41,9 @@ class GradioStreamer(Node):
         self._port = port
         self._client = Client("http://"+self._hostname+":"+self._port+"/")
         self._fn_index = fn_index
-        self._attention_type = attention_type
+        self._api_name = api_name
+        self._format_str = format_str
+        self._str_array = str_array
 
     def update(self):
     
@@ -66,17 +70,66 @@ class GradioStreamer(Node):
         #        self._stream.add_edge(self._edge_ab)
 
         if self.ports is not None:
+            output_array=[]
+            while (len(output_array)<len(self._format_str)) and ((self._format_str[len(output_array)]=='s')or(self._format_str[len(output_array)]=='f')):
+                if (self._format_str[len(output_array)]=='s'):
+                  output_array.append(self._str_array[len(output_array)])
+                elif (self._format_str[len(output_array)]=='f'):
+                  import os.path
+                  if os.path.exists(self._str_array[len(output_array)]):
+                    output_array.append(self._str_array[len(output_array)])
+                  else:
+                    return False
             for name, port in self.ports.items():
                 #                if not name.startswith("i"):
                 #                    continue
                 #                key = "/" + name[2:].replace("_", "/")
+                while (len(output_array)<len(self._format_str)) and ((self._format_str[len(output_array)]=='s')or(self._format_str[len(output_array)]=='f')):
+                  if (self._format_str[len(output_array)]=='s'):
+                    output_array.append(self._str_array[len(output_array)])
+                  elif (self._format_str[len(output_array)]=='f'):
+                    import os.path
+                    if os.path.exists(self._str_array[len(output_array)]):
+                      output_array.append(self._str_array[len(output_array)])
+                    else:
+                      return False
                 if port.data is not None:
+#                    print('port.data.values: ', port.data.values)
                     port_data_values_as_list = port.data.values[-1:].tolist()
                     encodedData = json.dumps(port_data_values_as_list[0])
-                    result = self._client.predict(
-				self._attention_type,	# str  in 'Attention Type' Radio component
-				encodedData,	# str  in 'Coherence JSON' Textbox component
-				fn_index=self._fn_index
-                                )
+                    if (len(output_array)<len(self._format_str)) and (self._format_str[len(output_array)]=='l'):
+                      port_data_values_as_list_value_index = 0
+                      while (len(output_array)<len(self._format_str)) and (self._format_str[len(output_array)]=='l'):
+                        
+                        encodedData = json.dumps(port_data_values_as_list[0][port_data_values_as_list_value_index])
+                        port_data_values_as_list_value_index = port_data_values_as_list_value_index + 1
+                        output_array.append(encodedData)
+                    if (len(output_array)<len(self._format_str)) and (self._format_str[len(output_array)]=='j'):
+                      encodedData = json.dumps(port_data_values_as_list[0])
+                      output_array.append(encodedData)
+#                    result = self._client.predict(
+#				self._attention_type,	# str  in 'Attention Type' Radio component
+#				encodedData,	# str  in 'Coherence JSON' Textbox component
+#				fn_index=self._fn_index
+#                                )
                     #print(result)
+            while (len(output_array)<len(self._format_str)) and ((self._format_str[len(output_array)]=='s')or(self._format_str[len(output_array)]=='f')):
+                if (self._format_str[len(output_array)]=='s'):
+                  output_array.append(self._str_array[len(output_array)])
+                elif (self._format_str[len(output_array)]=='f'):
+                  import os.path
+                  if os.path.exists(self._str_array[len(output_array)]):
+                    output_array.append(self._str_array[len(output_array)])
+                  else:
+                    return False
+            if len(output_array) == len(self._format_str):
+#                print('len(output_array): ', len(output_array), 'self._format_str: ', self._format_str)
+#                print('output_array: ', output_array)
+                result = self._client.predict(
+#                self._client.submit(
+				*output_array,
+				fn_index=self._fn_index,
+				api_name=self._api_name,
+                                )
+#                print('result: ', result)
 
