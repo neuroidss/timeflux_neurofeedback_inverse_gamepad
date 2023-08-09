@@ -212,10 +212,13 @@ graphs:
       module: timeflux_neurofeedback_inverse_gamepad.nodes.gradiostreamer
       class: GradioStreamer
       params:
-        hostname: '127.0.0.1'
+        hostname: '127.0.0.1'#'127.0.0.1'
         port: '7860'
         fn_index: 2
-        attention_type: "coherence"
+#        api_name: "/predict_2"
+        format_str: "sj"
+        str_array: ["coherence"]
+#        attention_type: "coherence"
 #    - id: LocQuery
 #      module: timeflux.nodes.query
 #      class: LocQuery

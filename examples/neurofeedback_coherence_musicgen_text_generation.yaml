@@ -213,9 +213,20 @@ graphs:
       class: GradioStreamer
       params:
         hostname: '127.0.0.1'#'127.0.0.1'
-        port: '7861'#'7860'
+        port: '7860'
         fn_index: 2
-#        fn_index: 2
+#        api_name: "/predict_2"
+        format_str: "sj"
+        str_array: ["coherence"]
+#        attention_type: "coherence"
+    - id: gradiostreamer_1
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.gradiostreamer
+      class: GradioStreamer
+      params:
+        hostname: '127.0.0.1'#'127.0.0.1'
+        port: '7861'
+        fn_index: 2
+#        api_name: "/predict_2"
         format_str: "sj"
         str_array: ["coherence"]
 #        attention_type: "coherence"
@@ -230,6 +241,10 @@ graphs:
 #        target: LocQuery
 #      - source: LocQuery
         target: gradiostreamer
+      - source: Subscriber:coherence
+#        target: LocQuery
+#      - source: LocQuery
+        target: gradiostreamer_1
     # Update file every second
 #    rate: 1
 #    rate: 64
