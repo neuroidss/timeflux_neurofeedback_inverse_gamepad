@@ -15,4 +15,5 @@
     dist/timeflux_neurofeedback_inverse_gamepad-0.0.0-py3-none-any.whl
     opencv-python==4.5.3.56
     gradio_client
+    gradio
     
