@@ -1,3 +1,4 @@
+import argparse
 import gradio as gr
 _image_output0 = None
 _image_output1 = None
@@ -59,8 +60,9 @@ def update5(text_input0, text_input1, text_input2):
         _text_output2 = text_input2
     return [_text_output0, _text_output1, _text_output2]
     
+def ui_full(launch_kwargs):
     
-with gr.Blocks() as demo:
+  with gr.Blocks() as demo:
     with gr.Tab("Meditation Report"):
         with gr.Row():
             with gr.Column():
@@ -122,6 +124,49 @@ with gr.Blocks() as demo:
     text_btn.click(update5, [text_input0, text_input1, text_input2], [text_output0, text_output1, text_output2])
 
 
-#demo.launch()
-demo.queue(concurrency_count=10, max_size=50).launch(share=True)
+  #demo.launch()
+  demo.queue(concurrency_count=10, max_size=50).launch(**launch_kwargs)
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--listen',
+        type=str,
+        default='0.0.0.0' if 'SPACE_ID' in os.environ else '127.0.0.1',
+        help='IP to listen on for connections to Gradio',
+    )
+    parser.add_argument(
+        '--username', type=str, default='', help='Username for authentication'
+    )
+    parser.add_argument(
+        '--password', type=str, default='', help='Password for authentication'
+    )
+    parser.add_argument(
+        '--server_port',
+        type=int,
+        default=0,
+        help='Port to run the server listener on',
+    )
+    parser.add_argument(
+        '--inbrowser', action='store_true', help='Open in browser'
+    )
+    parser.add_argument(
+        '--share', action='store_true', help='Share the gradio UI'
+    )
+
+    args = parser.parse_args()
+
+    launch_kwargs = {}
+    launch_kwargs['server_name'] = args.listen
+
+    if args.username and args.password:
+        launch_kwargs['auth'] = (args.username, args.password)
+    if args.server_port:
+        launch_kwargs['server_port'] = args.server_port
+    if args.inbrowser:
+        launch_kwargs['inbrowser'] = args.inbrowser
+    if args.share:
+        launch_kwargs['share'] = args.share
+
+    # Show the interface
+    ui_full(launch_kwargs)
