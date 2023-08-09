@@ -123,5 +123,5 @@ with gr.Blocks() as demo:
 
 
 #demo.launch()
-demo.queue(concurrency_count=10, max_size=50).launch()
+demo.queue(concurrency_count=10, max_size=50).launch(share=True)
 
