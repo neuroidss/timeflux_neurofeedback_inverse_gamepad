@@ -13,6 +13,25 @@ graphs:
   # The main processing graph
   - id: AcquireEEG
     nodes:
+    # Receive EEG signal from the network
+#    - id: acquire
+    - id: LSL
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: openvibeSignal
+        unit: s
+        sync: network
+#        prop: name
+#        value: EEG
+#        prop: type
+#        value: random
+#        unit: ns
+#        sync: None
+#        name: EEG
+#        name: signal
+        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #    - id: random
 #      module: timeflux.nodes.random
 #      class: Random
@@ -30,13 +49,13 @@ graphs:
 #          - Fp1
 #        keys: [ Fp1, AF3 ]
 #        resync: False
-    - id: replay
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-      class: Replay
-      params:
-        filename: eeg/PAC_IMtest.bdf
-        keys: [ eeg ]
-        resync: False
+#    - id: replay
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+#      class: Replay
+#      params:
+#        filename: eeg/PAC_IMtest.bdf
+#        keys: [ eeg ]
+#        resync: False
     # Publish the raw EEG signal
     - id: PublisherRaw
       module: timeflux.nodes.zmq
@@ -47,8 +66,8 @@ graphs:
     edges:
 #      - source: random
 #      - source: acquire
-      - source: replay:eeg
-#      - source: LSL
+#      - source: replay:eeg
+      - source: LSL
 #        target: LocQuery
 #      - source: LocQuery
 #        target: RenameColumns

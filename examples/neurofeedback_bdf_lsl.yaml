@@ -13,6 +13,23 @@ graphs:
   # The main processing graph
   - id: AcquireEEG
     nodes:
+    - id: LSL
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: openvibeSignal
+        unit: s
+        sync: network
+#        prop: name
+#        value: EEG
+#        prop: type
+#        value: random
+#        unit: ns
+#        sync: None
+#        name: EEG
+#        name: signal
+        channels: [ Fp1, AF3, F7, F3, FC1, FC5, T7, C3, CP1, CP5, P7, P3, Pz, PO3, O1, Oz, O2, PO4, P4, P8, CP6, CP2, C4, T8, FC6, FC2, F4, F8, AF4, Fp2, Fz, Cz ]
 #    - id: random
 #      module: timeflux.nodes.random
 #      class: Random
@@ -30,13 +47,13 @@ graphs:
 #          - Fp1
 #        keys: [ Fp1, AF3 ]
 #        resync: False
-    - id: replay
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
-      class: Replay
-      params:
-        filename: eeg/PAC_IMtest.bdf
-        keys: [ eeg ]
-        resync: False
+#    - id: replay
+#      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+#      class: Replay
+#      params:
+#        filename: eeg/PAC_IMtest.bdf
+#        keys: [ eeg ]
+#        resync: False
     # Publish the raw EEG signal
     - id: PublisherRaw
       module: timeflux.nodes.zmq
@@ -47,8 +64,8 @@ graphs:
     edges:
 #      - source: random
 #      - source: acquire
-      - source: replay:eeg
-#      - source: LSL
+#      - source: replay:eeg
+      - source: LSL
 #        target: LocQuery
 #      - source: LocQuery
 #        target: RenameColumns
@@ -64,11 +81,8 @@ graphs:
 #    rate: 3
 #    rate: 10
     rate: 25
-
 #    rate: 64
 #    rate: 25
-
-
 
   - id: StreamToBrowser
     nodes:
@@ -86,8 +100,8 @@ graphs:
       module: timeflux_ui.nodes.ui
       class: UI
     edges:
-      - source: Subscriber:iapf
-        target: monitor:eeg_iapf
+#      - source: Subscriber:iapf
+#        target: monitor:eeg_iapf
 
 #      - source: Subscriber:bdf
 #        target: monitor:eeg_bdf
@@ -108,44 +122,8 @@ graphs:
 #    rate: 3
     rate: 25
 
-
-
-  - id: StreamToOSC
-    nodes:
-    # Receive data streams from the broker
-    - id: Subscriber
-      module: timeflux.nodes.zmq
-      class: Sub
-      params:
-        topics:
-        - iapf
-    # Send to an external application
-    - id: OSC
-      module: timeflux.nodes.osc
-      class: Client
-      params:
-        address: /alpha
-#    - id: LocQuery
-#      module: timeflux.nodes.query
-#      class: LocQuery
-#      params:
-#        key: [ C4__C3 ]
-#        axis: 1
-#    edges:
-#      - source: Subscriber:coherence
-#        target: LocQuery
-#      - source: LocQuery
-#        target: gephistreamer
-    # Update file every second
-#    rate: 1
-#    rate: 64
-#    rate: 512
-#    rate: 3
-    rate: 25
-
-
   # The recorder graph
-  - id: ProcessToIAPF
+  - id: StreamToBDF
     nodes:
     # Receive data streams from the broker
     - id: Subscriber
@@ -153,57 +131,26 @@ graphs:
       class: Sub
       params:
         topics:
-#        topics: [ raw, bands ]
         - raw
-    - id: IAPFWindow
+    - id: WriteBDFWindow
       module: timeflux.nodes.window
       class: Window
       params:
-        length: 20.0
 #        length: 1.0
-#        length: 0.625
-#        step: 0.2
-        step: 0.1
-#        step: 0.002
-    - id: IAPF
-      module: timeflux_neurofeedback_inverse_gamepad.nodes.iapf
-      class: IAPF
+        length: 512
+#        step: 1.0
+#        step: 1
+        step: 512
+#        index: time
+        index: sample
+#        epochs: true
+    # Record to file
+    - id: Recorder
+      module: timeflux_neurofeedback_inverse_gamepad.nodes.bdf
+      class: Save
       params:
-        peak_width_limits: [1, 6]
-        min_peak_height: 0.15
-        peak_threshold: 2.
-        max_n_peaks: 1
-        nan_policy: 'mean'
-        xsize: 500
-        ysize: 300
-        to_speaker: True
-      
-#        ch_names_pick: ['Cz']
-#        ch_names_pick: ['C3','C4','Cz']
-        ch_names_pick: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-#        epochs_con: 10
-        epochs_con: 1
-#        method: plv
-#        method: ciplv
-        method: coh
-        fmin: 8
-        fmax: 13
-        n_jobs: 1
-        duration: 20
-#        duration: 0.625
-        overlap: 0.525
-        sfreq: 512
-#        to_screen: False
-        to_screen: True
-#        vmin: 0
-        vmin: 0.7
-        con_name:  neurofeedback
-        node_colors: null
-    - id: PublisherIAPF
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: iapf
+        eeg_channels: ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+        sample_rate: 512
     - id: dejitter
       module: timeflux.nodes.dejitter
       class: Interpolate
@@ -211,16 +158,17 @@ graphs:
 #        rate: 200
 #        rate: 64
         rate: 512
-    # Connect nodes
     edges:
-#      - source: acquire
       - source: Subscriber:raw
-        target: dejitter
-      - source: dejitter
-        target: IAPFWindow
-      - source: IAPFWindow
-        target: IAPF
-      - source: IAPF
-        target: PublisherIAPF
+#        target: dejitter
+#      - source: dejitter
+        target: WriteBDFWindow
+      - source: WriteBDFWindow
+        target: Recorder
+    # Update file every second
+#    rate: 1
+#    rate: 64
+#    rate: 512
+#    rate: 3
     rate: 25
 

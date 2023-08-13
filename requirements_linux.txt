@@ -17,4 +17,5 @@
     opencv-python==4.5.3.56
     gradio_client
     gradio
+    numexpr==2.8.4
     
