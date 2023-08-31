@@ -1,5 +1,6 @@
     timeflux==0.15.0
     numpy==1.21.6
+    scipy==1.10.1
     pyedflib==0.1.30
     mne==1.2.0
     evdev==1.6.1
