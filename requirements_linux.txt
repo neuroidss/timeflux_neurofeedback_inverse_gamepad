@@ -1,21 +1,22 @@
-    timeflux>=0.5.3
-    pyedflib
-    mne
-    evdev
-    python-uinput
-    gephistreamer
-    timeflux_ui
-    timeflux_dsp
-    timeflux_brainflow
-    mne_connectivity
-    pyformulas
-    brainflow
+    timeflux==0.15.0
+    numpy==1.21.6
+    pyedflib==0.1.30
+    mne==1.2.0
+    evdev==1.6.1
+    python-uinput==0.11.2
+    gephistreamer==2.0.3
+    timeflux_ui==0.5.2
+    timeflux_dsp==0.3.4
+    timeflux_brainflow==0.8.0
+    mne_connectivity==0.5.0
+    pyformulas==0.2.11
+    brainflow==5.6.3
     zmq
-    python-osc
-    gephistreamer
+    python-osc==1.8.1
+    gephistreamer==2.0.3
     dist/timeflux_neurofeedback_inverse_gamepad-0.0.0-py3-none-any.whl
     opencv-python==4.5.3.56
-    gradio_client
-    gradio
+    gradio_client==0.3.0
+    gradio==3.39.0
     numexpr==2.8.4
     
