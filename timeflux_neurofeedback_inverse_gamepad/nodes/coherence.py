@@ -63,6 +63,7 @@ class SpectralConnectivityEpochs(Node):
         xsize=1500,
         ysize=1500,
         triangle=True,
+        tri=None,#'tril','triu',None,'both'
         to_file=None,
     ):
         """
@@ -89,6 +90,7 @@ class SpectralConnectivityEpochs(Node):
         self._xsize = xsize
         self._ysize = ysize
         self._triangle = triangle
+        self._tri = tri
         self._to_file = to_file
 
         self._cohs_tril_indices = None
@@ -103,6 +105,7 @@ class SpectralConnectivityEpochs(Node):
     def update(self):
         # Make sure we have a non-empty dataframe
         if self.i.ready():
+            import numpy as np
 #            print('len(self.i.data): ', len(self.i.data))
 
             self.o.meta = self.i.meta
@@ -113,6 +116,7 @@ class SpectralConnectivityEpochs(Node):
                     self._ch_names_pick = list(self.i.data.columns)
 
               if self._triangle:
+               if self._tri is None:
                 cons_len = int(
                     len(self._ch_names_pick) * (len(self._ch_names_pick) - 1) / 2
                 )
@@ -123,8 +127,6 @@ class SpectralConnectivityEpochs(Node):
                 #        audio_cons_fs=int(cons_len*(fs_mult-0.0))
                 #        cons_index=0
                 #        cons=np.zeros((cons_dur,cons_len),dtype=float)
-
-                import numpy as np
 
                 self._cohs_tril_indices = np.zeros((2, cons_len), dtype=int)
                 cohs_tril_indices_count = 0
@@ -154,25 +156,12 @@ class SpectralConnectivityEpochs(Node):
                                     cohs_tril_indices_count = (
                                         cohs_tril_indices_count + 1
                                     )
-                self._con_tril_names = []
-                self._con_tril_names_2 = []
-                for idx in range(len(self._cohs_tril_indices[0])):
-                    self._con_tril_names.append(
-                        self._ch_names_pick[self._cohs_tril_indices[0][idx]]
-                        + "__"
-                        + self._ch_names_pick[self._cohs_tril_indices[1][idx]]
-                    )
-                    self._con_tril_names_2.append(
-                        (
-                            self._ch_names_pick[self._cohs_tril_indices[0][idx]]
-                            + "__"
-                            + self._ch_names_pick[self._cohs_tril_indices[1][idx]],
-                            self._ch_names_pick[self._cohs_tril_indices[1][idx]]
-                            + "__"
-                            + self._ch_names_pick[self._cohs_tril_indices[0][idx]],
-                        )
-                    )
+               if self._tri == 'tril':
+                self._cohs_tril_indices = np.tril_indices(len(self._ch_names_pick), k = -1)
+               if self._tri == 'triu':
+                self._cohs_tril_indices = np.triu_indices(len(self._ch_names_pick), k = 1)
               else:
+               if self._tri is None:
                 cons_len = int(
                     len(self._ch_names_pick) * (len(self._ch_names_pick))
                 )
@@ -201,6 +190,15 @@ class SpectralConnectivityEpochs(Node):
                                     cohs_tril_indices_count = (
                                         cohs_tril_indices_count + 1
                                     )
+               if self._tri == 'both':
+                self._cohs_tril_indices = np.indices((len(self._ch_names_pick), len(self._ch_names_pick)))
+                #print(len(self._cohs_tril_indices))
+                #print(len(self._cohs_tril_indices[0]))
+                #print(len(self._cohs_tril_indices[0][0]))
+                self._cohs_tril_indices = np.reshape(self._cohs_tril_indices, (len(self._cohs_tril_indices), len(self._cohs_tril_indices[0])*len(self._cohs_tril_indices[0][0])))
+                #print(self._cohs_tril_indices)
+
+            if True:
                 self._con_tril_names = []
                 self._con_tril_names_2 = []
                 for idx in range(len(self._cohs_tril_indices[0])):
