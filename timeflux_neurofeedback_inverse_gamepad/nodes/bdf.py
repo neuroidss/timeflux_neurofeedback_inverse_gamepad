@@ -213,8 +213,10 @@ class Replay(Node):
             max = min + ellapsed * self._speed
             self._last = now
 
-        #        print('min,max:',min,max)
-        #        print('self._sources.items():',self._sources.items())
+#        print('self._last:',self._last)
+
+#        print('min,max:',min,max)
+#        print('self._sources.items():',self._sources.items())
         for key, source in self._sources.items():
             #           print('key,source:',key,source)
 
@@ -256,6 +258,7 @@ class Replay(Node):
 
     def terminate(self):
         self._bdf.close()
+#        print('replay bdf closed')
 
     def _find_path(self, path):
         path = os.path.normpath(path)
@@ -382,9 +385,13 @@ class Save(Node):
         self._bdf.setStartdatetime(now)
 
     def update(self):
-        if self.ports is not None:
+#        print(self)
+        if self.i.ready():
+#        if self.ports is not None:
             #          bdf.writeSamples(bufs_hstack_cut)
-            for name, port in self.ports.items():
+ #           for name, port in self.ports.items():
+                port = self.i
+#                print(port)
                 #                if not name.startswith("i"):
                 #                    continue
                 #                key = "/" + name[2:].replace("_", "/")
@@ -405,6 +412,7 @@ class Save(Node):
     def terminate(self):
         try:
             self._bdf.close()
+#            print('saved bdf closed')
         except Exception:
             # Just in case
             pass
