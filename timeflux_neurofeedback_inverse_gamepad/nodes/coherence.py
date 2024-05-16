@@ -65,6 +65,9 @@ class SpectralConnectivityEpochs(Node):
         triangle=True,
         tri=None,#'tril','triu',None,'both'
         to_file=None,
+        video_filename=None,
+        video_path="/tmp",
+        to_video=False,
     ):
         """
         Args:
@@ -94,15 +97,39 @@ class SpectralConnectivityEpochs(Node):
         self._triangle = triangle
         self._tri = tri
         self._to_file = to_file
+        self._to_video = to_video
 
         self._cohs_tril_indices = None
 
-        if self._to_screen:
+        if self._to_screen or self._to_video:
             import numpy as np
             import pyformulas as pf
 
             self._canvas = np.zeros((self._xsize, self._ysize))
-            self._screen = pf.screen(self._canvas, con_name)
+            if self._to_screen:
+                self._screen = pf.screen(self._canvas, con_name)
+            
+            if self._to_screen or self._to_video:
+                import imageio
+#                self._fps=1
+                self._fps=1/(duration - overlap)
+                import os
+                import time
+                os.makedirs(video_path, exist_ok=True)
+                now = time.gmtime()
+                if video_filename is None:
+                    video_filename = os.path.join(
+                        video_path,
+                        time.strftime("%Y%m%d-%H%M%S.mp4", now),
+                    )
+                else:
+                    video_filename = os.path.join(video_path, video_filename)
+                from datetime import datetime
+                now = datetime.now()
+                self.logger.info("Saving to %s", video_filename)
+
+                self._out = imageio.get_writer(video_filename, fps=self._fps)
+
 
     def update(self):
         # Make sure we have a non-empty dataframe
@@ -305,7 +332,7 @@ class SpectralConnectivityEpochs(Node):
             #        print('data:',data)
             self.o.data = data
 
-            if self._to_screen:
+            if self._to_screen or self._to_video:
                 import numpy as np
                 import pyformulas as pf
                 from mne_connectivity.viz import plot_connectivity_circle
@@ -416,15 +443,26 @@ class SpectralConnectivityEpochs(Node):
 
 
                 image = image[:, :, ::-1]
-                self._screen.update(image)
+                if self._to_screen:
+                    self._screen.update(image)
                 
-#                roots = objgraph.get_leaking_objects()
-#                objgraph.show_refs(roots[:3], refcounts=True, filename='roots.png')
+                if self._to_video:
+                    import io
+                    img_buf1 = io.BytesIO()
+                    from PIL import Image
+                    im = Image.fromarray(image)
+                    im.save(img_buf1, format='png')
+                    img_buf1.seek(0)
+
+                    import imageio
+                    im2 = imageio.imread(img_buf1)
+                    img_buf1.close()
+                    self._out.append_data(im2)
 
                 plt.close()
                 import gc
                 gc.collect()
 #            if False:
-                
+
 
 #            video_outs[shows_idx].append_data(image)
