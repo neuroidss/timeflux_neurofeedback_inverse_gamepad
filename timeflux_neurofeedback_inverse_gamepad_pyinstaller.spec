@@ -51,6 +51,8 @@ if sys.platform.startswith('win'):
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
     (site_packages+"/PyQt5", "PyQt5"),
+    (site_packages+"/imageio", "imageio"),
+    (site_packages+"/imageio_ffmpeg", "imageio_ffmpeg"),
     ]
 if sys.platform.startswith('linux'):
 #  site_packages='./env/lib/python3.9/site-packages'
@@ -105,6 +107,8 @@ if sys.platform.startswith('linux'):
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
     (site_packages+"/PyQt5", "PyQt5"),
+    (site_packages+"/imageio", "imageio"),
+    (site_packages+"/imageio_ffmpeg", "imageio_ffmpeg"),
     ]
 if sys.platform.startswith('darwin'):
 #  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
@@ -160,6 +164,8 @@ if sys.platform.startswith('darwin'):
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
     (site_packages+"/PyQt5", "PyQt5"),
+    (site_packages+"/imageio", "imageio"),
+    (site_packages+"/imageio_ffmpeg", "imageio_ffmpeg"),
     ]
 
 block_cipher = None

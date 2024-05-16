@@ -19,3 +19,5 @@
     gradio==3.39.0
     numexpr==2.8.4
     PyQt5==5.15.10
+    imageio==2.34.1
+    imageio-ffmpeg==0.4.9
