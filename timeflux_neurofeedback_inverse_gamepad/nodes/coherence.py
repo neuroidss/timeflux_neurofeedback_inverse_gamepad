@@ -72,6 +72,8 @@ class SpectralConnectivityEpochs(Node):
         """
         #        self._value = value
 
+#        import objgraph
+
         self._ch_names_pick = ch_names_pick
         self._epochs_con = epochs_con
         self._method = method
@@ -105,6 +107,7 @@ class SpectralConnectivityEpochs(Node):
     def update(self):
         # Make sure we have a non-empty dataframe
         if self.i.ready():
+#            import objgraph
             import numpy as np
 #            print('len(self.i.data): ', len(self.i.data))
 
@@ -307,6 +310,17 @@ class SpectralConnectivityEpochs(Node):
                 import pyformulas as pf
                 from mne_connectivity.viz import plot_connectivity_circle
                 import matplotlib.pyplot as plt
+                import matplotlib
+                matplotlib.use('QtAgg')
+#                matplotlib.use('ipympl')
+#                matplotlib.use('GTK3Agg')
+#                matplotlib.use('GTK4Agg')
+#                matplotlib.use("TkAgg")
+#                matplotlib.use('nbAgg')
+#                matplotlib.use('WebAgg')
+#                matplotlib.use('GTK3Cairo')
+#                matplotlib.use('GTK4Cairo')
+#                matplotlib.use('wxAgg')
 
                 con_sort = np.sort(np.abs(conmat).ravel())[::-1]
                 #            con_sort=np.sort(np.abs(con).ravel())[::-1]
@@ -386,12 +400,31 @@ class SpectralConnectivityEpochs(Node):
                   im = Image.fromarray(image)
                   im.save(self._to_file)
 
-                plt.close(fig)
-                del fig
+#                f = plt.figure()
+#                f.clear()
+#                plt.close(f)
+#                plt.close(fig)
+#                del fig
+                
+                
+#                plt.figure().clear()
+#                plt.close()
+
+
+#                plt.clf() 
+#                plt.cla()
+
 
                 image = image[:, :, ::-1]
                 self._screen.update(image)
+                
+#                roots = objgraph.get_leaking_objects()
+#                objgraph.show_refs(roots[:3], refcounts=True, filename='roots.png')
 
+                plt.close()
+                import gc
+                gc.collect()
+#            if False:
                 
 
 #            video_outs[shows_idx].append_data(image)
