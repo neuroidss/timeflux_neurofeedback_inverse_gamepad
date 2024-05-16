@@ -50,6 +50,7 @@ if sys.platform.startswith('win'):
     (site_packages+"/nptyping", "nptyping"),
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
+    (site_packages+"/PyQt5", "PyQt5"),
     ]
 if sys.platform.startswith('linux'):
 #  site_packages='./env/lib/python3.9/site-packages'
@@ -103,6 +104,7 @@ if sys.platform.startswith('linux'):
     (site_packages+"/nptyping", "nptyping"),
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
+    (site_packages+"/PyQt5", "PyQt5"),
     ]
 if sys.platform.startswith('darwin'):
 #  site_packages='./env_timeflux_coherence_circle/lib/python3.9/site-packages'
@@ -157,6 +159,7 @@ if sys.platform.startswith('darwin'):
     (site_packages+"/nptyping", "nptyping"),
     (site_packages+"/typish", "typish"),
     (site_packages+"/pooch", "pooch"),
+    (site_packages+"/PyQt5", "PyQt5"),
     ]
 
 block_cipher = None

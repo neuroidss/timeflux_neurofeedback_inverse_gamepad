@@ -20,4 +20,4 @@
     gradio_client==0.3.0
     gradio==3.39.0
     numexpr==2.8.4
-    
+    PyQt5==5.15.10
