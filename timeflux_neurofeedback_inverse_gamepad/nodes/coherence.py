@@ -109,7 +109,7 @@ class SpectralConnectivityEpochs(Node):
             if self._to_screen:
                 self._screen = pf.screen(self._canvas, con_name)
             
-            if self._to_screen or self._to_video:
+            if self._to_video:
                 import imageio
 #                self._fps=1
                 self._fps=1/(duration - overlap)
