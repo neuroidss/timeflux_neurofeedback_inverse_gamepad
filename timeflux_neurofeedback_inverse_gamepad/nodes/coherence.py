@@ -68,6 +68,7 @@ class SpectralConnectivityEpochs(Node):
         video_filename=None,
         video_path="/tmp",
         to_video=False,
+        to_bdf=False,
     ):
         """
         Args:
@@ -98,6 +99,7 @@ class SpectralConnectivityEpochs(Node):
         self._tri = tri
         self._to_file = to_file
         self._to_video = to_video
+        self._to_bdf = to_bdf
 
         self._cohs_tril_indices = None
 
@@ -139,7 +141,12 @@ class SpectralConnectivityEpochs(Node):
 #            print('len(self.i.data): ', len(self.i.data))
 
             self.o.meta = self.i.meta
-            self.o.data = self.i.data.tail(1)
+#            self.o.data = self.i.data
+            if self._to_bdf:
+                self.o.data = self.i.data.tail(int(self._sfreq*(self._duration - self._overlap)))
+            else:
+                self.o.data = self.i.data.tail(1)
+            
 
             if self._cohs_tril_indices is None:
               if self._ch_names_pick is None:
@@ -316,21 +323,45 @@ class SpectralConnectivityEpochs(Node):
 
             #        print('con_tril:',con_tril)
             #        data = pd.DataFrame(con_tril, index = self._con_tril_names, columns = [self.i.data.index[0]])
-            data = pd.DataFrame(
-                con_tril,
-                index=self._con_tril_names,
-                columns=[self.i.data.index[self.i.data.index.size - 1]],
-            )
+#            data = pd.DataFrame(
+#                con_tril,
+#                index=self._con_tril_names,
+#                columns=[self.i.data.index[self.i.data.index.size - 1]],
+#            )
             #        data = pd.DataFrame(con_tril, index = self._con_tril_names_2)
             #        data.index = pd.MultiIndex.from_tuples(data.index, names=['0-1','1-0'])
-            data = data.T
+#            data = data.T
+#            print(np.array([con_tril]).shape)
+#            print(np.array([con_tril]).T.shape)
             #        data.index[0] = self.i.data.index[0]
 
             #        data.columns = self._con_tril_names
             #        data.columns = self._con_tril_names_2
             #        data.columns = pd.MultiIndex.from_tuples(self._con_tril_names_2)
             #        print('data:',data)
-            self.o.data = data
+#            self.o.data = data
+#            print(self.o.data)
+#            print(data)
+            if self._to_bdf:
+                data = pd.DataFrame(
+                    np.repeat(np.array([con_tril*1000]), repeats=self.i.data.index.size, axis=0),
+                    index=self.i.data.index,
+                    columns=self._con_tril_names,
+                )
+#                data = pd.DataFrame(
+#                    np.array([con_tril*1000]),
+#                    index=[self.i.data.index[self.i.data.index.size - 1]],
+#                    columns=self._con_tril_names,
+#                )
+                self.o.data = pd.concat([self.o.data, data], axis=1)
+            else:
+                data = pd.DataFrame(
+                    np.array([con_tril]),
+                    index=[self.i.data.index[self.i.data.index.size - 1]],
+                    columns=self._con_tril_names,
+                )
+                self.o.data = data
+#            print(self.o.data)
 
             if self._to_screen or self._to_video:
                 import numpy as np

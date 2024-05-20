@@ -392,10 +392,17 @@ class Save(Node):
  #           for name, port in self.ports.items():
                 port = self.i
 #                print(port)
+#                print(port.data)
                 #                if not name.startswith("i"):
                 #                    continue
                 #                key = "/" + name[2:].replace("_", "/")
                 if port.data is not None:
+                  ch_names_in_port_data = True
+                  for ch_name in self._ch_names:
+                    if not(ch_name in port.data):
+                      ch_names_in_port_data = False
+                  if ch_names_in_port_data:
+                    #print(port.data)
                     self._bdf.writeSamples(port.data[self._ch_names].to_numpy().T)
 
     #                    if isinstance(port.data, pd.DataFrame):
