@@ -319,18 +319,22 @@ class Save(Node):
             see: http://pandas.pydata.org/pandas-docs/stable/io.html#string-columns
 
         """
-        os.makedirs(path, exist_ok=True)
-        now = time.gmtime()
-        if filename is None:
-            filename = os.path.join(
-                #               path, time.strftime("%Y%m%d-%H%M%S.hdf5", time.gmtime())
-                path,
-                time.strftime("%Y%m%d-%H%M%S.bdf", now),
-            )
-        else:
-            filename = os.path.join(path, filename)
-        now = datetime.now()
-        self.logger.info("Saving to %s", filename)
+        
+        self._filename=filename
+        self._path=path
+        self._complib=complib
+        self._complevel=complevel
+        self._min_itemsize=min_itemsize
+        self._sample_rate=sample_rate
+        self._eeg_channels=eeg_channels
+        self._pmax=pmax
+        self._pmin=pmin
+        self._dmax=dmax
+        self._dmin=dmin
+        self._dimension=dimension
+        self._data_key=data_key
+        self._file_type=file_type
+
         #        self._store = pd.HDFStore(filename, complib=complib, complevel=complevel)
         #        self.min_itemsize = min_itemsize
 
@@ -343,46 +347,7 @@ class Save(Node):
 
         #        dimension="uV"
         #        data_key="eeg"
-        if sample_rate is None:
-            for name, port in self.ports.items():
-                print("name,port:", name, port)
-                sample_rate = getattr(self, port["name"]).meta["rate"]
-        #        rate=512
-        rate = sample_rate
-
-        if eeg_channels is None:
-            for name, port in self.ports.items():
-                #            print('name,port:',name,port)
-                eeg_channels = port.data.columns
-        #        print('self:',self)
-        #        print('self.ports:',self.ports)
-        #        print('self.ports.items():',self.ports.items())
-        #        eeg_channels = ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
-        n_channels = len(eeg_channels)
-        #        file_type = pyedflib.FILETYPE_BDFPLUS  # BDF+
-        self._bdf = pyedflib.EdfWriter(
-            filename, n_channels=n_channels, file_type=file_type
-        )
-
-        headers = []
-        # print(ch_names)
-        self._ch_names = eeg_channels
-        for channel in self._ch_names:
-            headers.append(
-                {
-                    "label": str(channel),
-                    "dimension": dimension,
-                    "sample_rate": rate,
-                    "physical_min": pmin,
-                    "physical_max": pmax,
-                    "digital_min": dmin,
-                    "digital_max": dmax,
-                    "transducer": "",
-                    "prefilter": "",
-                }
-            )
-        self._bdf.setSignalHeaders(headers)
-        self._bdf.setStartdatetime(now)
+        self._bdf = None
 
     def update(self):
 #        print(self)
@@ -397,6 +362,64 @@ class Save(Node):
                 #                    continue
                 #                key = "/" + name[2:].replace("_", "/")
                 if port.data is not None:
+                    
+                  if self._bdf is None:
+
+                        os.makedirs(self._path, exist_ok=True)
+                        self._now = time.gmtime()
+                        if self._filename is None:
+                            self._filename = os.path.join(
+                #               path, time.strftime("%Y%m%d-%H%M%S.hdf5", time.gmtime())
+                                self._path,
+                                time.strftime("%Y%m%d-%H%M%S.bdf", self._now),
+                            )
+                        else:
+                            self._filename = os.path.join(self._path, self._filename)
+                        self._now = datetime.now()
+                        self.logger.info("Saving to %s", self._filename)
+                        if self._sample_rate is None:
+#                            for name, port in self.ports.items():
+                                print("name,port:", name, port)
+                                self._sample_rate = getattr(self, port["name"]).meta["rate"]
+        #        rate=512
+                        self._rate = self._sample_rate
+
+                        if self._eeg_channels is None:
+#                            for name, port in self.ports.items():
+#                                print("name,port:", name, port)
+                                self._eeg_channels = port.data.columns
+        #        print('self:',self)
+        #        print('self.ports:',self.ports)
+        #        print('self.ports.items():',self.ports.items())
+        #        eeg_channels = ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+                        self._n_channels = len(self._eeg_channels)
+        #        file_type = pyedflib.FILETYPE_BDFPLUS  # BDF+
+                        self._bdf = pyedflib.EdfWriter(
+                            self._filename, n_channels=self._n_channels, file_type=self._file_type
+                        )
+
+                        self._headers = []
+        # print(ch_names)
+                        self._ch_names = self._eeg_channels
+                        for channel in self._ch_names:
+                            self._headers.append(
+                                {
+                                    "label": str(channel),
+                                    "dimension": self._dimension,
+                                    "sample_rate": self._rate,
+                                    "physical_min": self._pmin,
+                                    "physical_max": self._pmax,
+                                    "digital_min": self._dmin,
+                                    "digital_max": self._dmax,
+                                    "transducer": "",
+                                    "prefilter": "",
+                                }
+                            )
+                        self._bdf.setSignalHeaders(self._headers)
+                        self._bdf.setStartdatetime(self._now)
+
+
+
                   ch_names_in_port_data = True
                   for ch_name in self._ch_names:
                     if not(ch_name in port.data):

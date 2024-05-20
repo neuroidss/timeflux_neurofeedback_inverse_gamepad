@@ -143,7 +143,8 @@ class SpectralConnectivityEpochs(Node):
             self.o.meta = self.i.meta
 #            self.o.data = self.i.data
             if self._to_bdf:
-                self.o.data = self.i.data.tail(int(self._sfreq*(self._duration - self._overlap)))
+                coherence_repeat = int(self._sfreq*(self._duration - self._overlap))
+                self.o.data = self.i.data.tail(coherence_repeat)
             else:
                 self.o.data = self.i.data.tail(1)
             
@@ -343,9 +344,10 @@ class SpectralConnectivityEpochs(Node):
 #            print(self.o.data)
 #            print(data)
             if self._to_bdf:
+#                print(coherence_repeat)
                 data = pd.DataFrame(
-                    np.repeat(np.array([con_tril*1000]), repeats=self.i.data.index.size, axis=0),
-                    index=self.i.data.index,
+                    np.repeat(np.array([con_tril*1000]), repeats=coherence_repeat, axis=0),
+                    index=self.i.data.index[-coherence_repeat:],
                     columns=self._con_tril_names,
                 )
 #                data = pd.DataFrame(
