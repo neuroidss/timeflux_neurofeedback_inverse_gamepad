@@ -140,6 +140,7 @@ class SpectralConnectivityEpochs(Node):
             import numpy as np
 #            print('len(self.i.data): ', len(self.i.data))
 
+#            print('coh self.i.data.size:',self.i.data.size)
             self.o.meta = self.i.meta
 #            self.o.data = self.i.data
             if self._to_bdf:

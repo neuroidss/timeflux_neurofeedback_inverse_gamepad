@@ -197,6 +197,7 @@ class Replay(Node):
         self._last = now
 
     #        print('self._last:',self._last)
+        self._data = None
 
     def update(self):
 
@@ -222,35 +223,56 @@ class Replay(Node):
 
             # Select data
             #            data = self._store.select(key, "index >= min & index < max")
+          if self._data is None:
+            from datetime import timedelta
+            min_bdf = self._meas_date
+            max_bdf = min_bdf + timedelta(seconds=31536000)
+#            print(self._bdf)
             data = self._bdf.get_data(
                 [key],
-                tmin=pd.Timedelta(min - self._meas_date).seconds,
-                tmax=pd.Timedelta(max - self._meas_date).seconds,
+#                tmin=pd.Timedelta(min_bdf - self._meas_date).seconds,
+#                tmax=pd.Timedelta(max_bdf - self._meas_date).seconds,
+#                tmin=pd.Timedelta(min - self._meas_date).seconds,
+#                tmax=pd.Timedelta(max - self._meas_date).seconds,
             )
             data = data * 1000000
-
-            # Add offset
-            if self._resync:
-                data.index += self._offset
 
             # Update port
             #            print('data:',data)
             data = pd.DataFrame(data.T)
+
             for idx in range(len(self._bdf.info["ch_names"])):
                 data = data.rename(columns={idx: self._bdf.info["ch_names"][idx]})
-            #            print('data:',data)
+#            print('data:',data)
+#            print('replay data.size:',data.size)
             if data.size > 0:
                 #              print('data.shape:',data.shape)
                 data_time = np.asarray(range(data.shape[0])) / self._bdf.info["sfreq"]
-                data_time = min + pd.to_timedelta(data_time, unit="seconds")
+                data_time = min_bdf + pd.to_timedelta(data_time, unit="seconds")
+#                data_time = min + pd.to_timedelta(data_time, unit="seconds")
                 data.insert(loc=0, column="time", value=data_time)
                 data = data.set_index("time")
+#                print (data.index.min(), data.index.max())
+#                print (min, max)
+#                data = data.loc[min:max]
+                if self._data is None:
+                    self._data = data
+          if not(self._data is None):
+                data = self._data.loc[min:max]
+#                print (data.index.min(), data.index.max())
+#                print(data)
+#                print('replay loc data.size:',data.size)
+
+                # Add offset
+                if self._resync:
+                    data.index = data.index + self._offset
+
             #            data.rename(index={1: 'counter'})
             #              print('data.index[0]:',data.index[0])
             #              print('data:',data)
             #            print('source["meta"]:',source["meta"])
-            getattr(self, source["name"]).data = data
-            getattr(self, source["name"]).meta = source["meta"]
+          getattr(self, source["name"]).data = data
+          getattr(self, source["name"]).meta = source["meta"]
 
         #        print('self._sources.items():',self._sources.items())
 
@@ -363,6 +385,7 @@ class Save(Node):
                 #                key = "/" + name[2:].replace("_", "/")
                 if port.data is not None:
                     
+#                  print('save port.data.size:', port.data.size)
                   if self._bdf is None:
 
                         os.makedirs(self._path, exist_ok=True)
