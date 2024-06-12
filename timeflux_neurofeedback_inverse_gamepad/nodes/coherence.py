@@ -47,13 +47,13 @@ class SpectralConnectivityEpochs(Node):
 
     def __init__(
         self,
-        ch_names_pick,
         method,
         fmin,
         fmax,
         duration,
         overlap,
         sfreq,
+        ch_names_pick=None,
         epochs_con=1,
         n_jobs=1,
         to_screen=False,

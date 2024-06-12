@@ -415,6 +415,7 @@ class Save(Node):
         #        print('self.ports:',self.ports)
         #        print('self.ports.items():',self.ports.items())
         #        eeg_channels = ['Fp1','AF3','F7','F3','FC1','FC5','T7','C3','CP1','CP5','P7','P3','Pz','PO3','O1','Oz','O2','PO4','P4','P8','CP6','CP2','C4','T8','FC6','FC2','F4','F8','AF4','Fp2','Fz','Cz']
+#                        print(self._eeg_channels)
                         self._n_channels = len(self._eeg_channels)
         #        file_type = pyedflib.FILETYPE_BDFPLUS  # BDF+
                         self._bdf = pyedflib.EdfWriter(
